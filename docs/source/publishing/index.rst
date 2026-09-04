@@ -26,6 +26,7 @@ to be able to return back data to the pygeoapi API framework in a plug and play 
    ogcapi-maps
    ogcapi-tiles
    ogcapi-edr
+   ogcapi-mfapi
 
 .. seealso::
    :ref:`configuration` for more information on publishing hidden data.

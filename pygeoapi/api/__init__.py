@@ -40,6 +40,16 @@ Root level code of pygeoapi, parsing content provided by web framework.
 Returns content from plugins and sets responses.
 """
 
+from pygeoapi.util import (CrsTransformSpec, TEMPLATES, UrlPrefetcher,
+                           get_api_rules, get_base_url, get_provider_by_type,
+                           get_typed_value, get_crs_from_uri, dategetter,
+                           get_supported_crs_list, render_j2_template, to_json,
+                           get_provider_default, filter_dict_by_key_value)
+from pymeos import STBox, TsTzSpan, pymeos_initialize
+import psycopg2
+from pygeoapi.provider.postgresql_mobilitydb import PostgresMobilityDB
+import asyncio
+from collections import OrderedDict
 from collections import ChainMap
 from copy import deepcopy
 from datetime import datetime
@@ -56,7 +66,7 @@ from dateutil.parser import parse as dateparse
 import pytz
 
 from pygeoapi import __version__, l10n
-from pygeoapi.api.collection import gen_collection, OGC_RELTYPES_BASE
+from pygeoapi.api.collection import gen_collection, OGC_RELTYPES_BASE, gen_mf_collection
 from pygeoapi.formats import FORMAT_TYPES, F_GZIP, F_HTML, F_JSON, F_JSONLD
 from pygeoapi.linked_data import jsonldify, jsonldify_collection
 from pygeoapi.log import setup_logger
@@ -104,7 +114,7 @@ def all_apis() -> dict:
     """
 
     from . import (coverages, environmental_data_retrieval, itemtypes, maps,
-                   processes, pubsub, tiles, stac)
+                   processes, pubsub, tiles, stac, movingfeatures)
 
     return {
         'coverage': coverages,
@@ -114,8 +124,63 @@ def all_apis() -> dict:
         'process': processes,
         'pubsub': pubsub,
         'tile': tiles,
-        'stac': stac
+        'stac': stac,
+        'movingfeature': movingfeatures,
     }
+
+
+def pre_process(func):
+    """
+    Decorator that transforms an incoming Request instance specific to the
+    web framework (i.e. Flask, Starlette or Django) into a generic
+    :class:`APIRequest` instance.
+
+    :param func: decorated function
+
+    :returns: `func`
+    """
+
+    def inner(*args):
+        cls, req_in = args[:2]
+        req_out = APIRequest.with_data(req_in, getattr(cls, 'locales', set()))
+        if len(args) > 2:
+            return func(cls, req_out, *args[2:])
+        else:
+            return func(cls, req_out)
+
+    return inner
+
+
+# TODO: remove this when all functions have been refactored
+def gzip(func):
+    """
+    Decorator that compresses the content of an outgoing API result
+    instance if the Content-Encoding response header was set to gzip.
+
+    :param func: decorated function
+
+    :returns: `func`
+    """
+
+    def inner(*args, **kwargs):
+        headers, status, content = func(*args, **kwargs)
+        charset = CHARSET[0]
+        if F_GZIP in headers.get('Content-Encoding', []):
+            try:
+                if isinstance(content, bytes):
+                    # bytes means Content-Type needs to be set upstream
+                    content = compress(content)
+                else:
+                    headers['Content-Type'] = \
+                        f"{headers['Content-Type']}; charset={charset}"
+                    content = compress(content.encode(charset))
+            except TypeError as err:
+                headers.pop('Content-Encoding')
+                LOGGER.error(f'Error in compression: {err}')
+
+        return headers, status, content
+
+    return inner
 
 
 def apply_gzip(headers: dict, content: Union[str, bytes]) -> Union[str, bytes]:
@@ -891,6 +956,9 @@ def conformance(api: API, request: APIRequest) -> Tuple[dict, int, str]:
                 if provider['type'] == 'record':
                     conformance_list.extend(
                         apis_dict['itemtypes'].CONFORMANCE_CLASSES_RECORDS)
+                if provider['type'] == 'movingfeatures':
+                        conformance_list.extend(
+                            apis_dict['movingfeatures'].CONFORMANCE_CLASSES_RECORDS)  # noqa
 
     if api.pubsub_client is not None:
         conformance_list.extend(apis_dict['pubsub'].CONFORMANCE_CLASSES)
@@ -964,6 +1032,26 @@ def describe_collections(api: API, request: APIRequest,
     if dataset is not None:
         fcm = fcm['collections'][0]
 
+    if dataset is None:
+        # get moving feature collections
+        pmdb_provider = PostgresMobilityDB()
+        try:
+            pmdb_provider.connect()
+            result = pmdb_provider.get_collections()
+
+            pymeos_initialize()
+            for row in result:
+                fcm['collections'].append(
+                    gen_mf_collection(api, request, row))
+        except (Exception, psycopg2.Error) as error:
+            msg = str(error)
+            return api.get_exception(
+                HTTPStatus.BAD_REQUEST,
+                headers,
+                request.format,
+                'ConnectingError',
+                msg)
+    
     if dataset is None:
         # TODO: translate
         fcm['links'].append({

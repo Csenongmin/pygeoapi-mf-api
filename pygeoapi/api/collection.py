@@ -47,6 +47,9 @@ from pygeoapi.provider import get_provider_by_type, get_provider_default
 from pygeoapi.provider.base import ProviderConnectionError, ProviderTypeError
 from pygeoapi.util import dategetter, get_dataset_formatters
 
+from pymeos import STBox, TsTzSpan
+
+
 LOGGER = logging.getLogger(__name__)
 
 OGC_RELTYPES_BASE = 'http://www.opengis.net/def/rel/ogc/1.0'
@@ -450,3 +453,136 @@ def gen_collection(api, request, dataset: str,
                 })
 
     return data
+
+
+def gen_mf_collection(api, request, row) -> dict:
+    """
+        Generate Moving Features Collection description
+    
+        :param api: `APIRequest` object
+        :param row: single mf-collection data retrieved by pmdb_provider
+    
+        :returns: `dict` of Moving Features Collection description
+    """
+    
+    collection_id = row[0]
+    collection = row[1]
+    collection['itemType'] = 'movingfeature'
+    collection['id'] = collection_id
+
+    crs = None
+    trs = None
+    if 'crs' in collection:
+        crs = collection.pop('crs', None)
+    if 'trs' in collection:
+        trs = collection.pop('trs', None)
+
+    extend_stbox = STBox(row[3]) if row[3] is not None else None
+    lifespan = TsTzSpan(row[2]) if row[2] is not None else None
+
+    bbox = []
+    if extend_stbox is not None:
+        bbox.append(extend_stbox.xmin())
+        bbox.append(extend_stbox.ymin())
+        if extend_stbox.zmin() is not None:
+            bbox.append(extend_stbox.zmin())
+        bbox.append(extend_stbox.xmax())
+        bbox.append(extend_stbox.ymax())
+        if extend_stbox.zmax() is not None:
+            bbox.append(extend_stbox.zmax())
+
+        if crs is None:
+            if extend_stbox.srid() == 4326:
+                if extend_stbox.zmax() is not None:
+                    crs = 'http://www.opengis.net/def/crs/OGC/0/CRS84h'  # noqa
+                else:
+                    crs = 'http://www.opengis.net/def/\
+                        crs/OGC/1.3/CRS84'
+    if crs is None:
+        crs = 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
+    if trs is None:
+        trs = 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+
+    time = []
+    if lifespan is not None:
+        time.append(
+            lifespan.lower().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        time.append(
+            lifespan.upper().strftime("%Y-%m-%dT%H:%M:%SZ"))
+    else:
+        if extend_stbox is not None:
+            if extend_stbox.tmin() is not None:
+                time.append(extend_stbox.tmin().strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"))
+                time.append(extend_stbox.tmax().strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"))
+
+    collection['extent'] = {
+        'spatial': {
+            'bbox': bbox,
+            'crs': crs
+        },
+        'temporal': {
+            'interval': time,
+            'trs': trs
+        }
+    }
+
+    collection['links'] = []
+
+    # TODO: provide translations
+    LOGGER.debug('Adding JSON and HTML link relations')
+
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_JSON],
+        'rel': 'root',
+        'title': l10n.translate('The landing page of this server as JSON', request.locale),  # noqa
+        'href': f"{api.base_url}?f={F_JSON}"
+    })
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_HTML],
+        'rel': 'root',
+        'title': l10n.translate('The landing page of this server as HTML', request.locale),  # noqa
+        'href': f"{api.base_url}?f={F_HTML}"
+    })
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_JSON],
+        'rel': request.get_linkrel(F_JSON),
+        'title': l10n.translate('This document as JSON', request.locale),  # noqa
+        'href': f'{api.get_collections_url()}/{collection_id}?f={F_JSON}'  # noqa
+    })
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_JSONLD],
+        'rel': request.get_linkrel(F_JSONLD),
+        'title': l10n.translate('This document as RDF (JSON-LD)', request.locale),  # noqa
+        'href': f'{api.get_collections_url()}/{collection_id}?f={F_JSONLD}'  # noqa
+    })
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_HTML],
+        'rel': request.get_linkrel(F_HTML),
+        'title': l10n.translate('This document as HTML', request.locale),  # noqa
+        'href': f'{api.get_collections_url()}/{collection_id}?f={F_HTML}'  # noqa
+    })
+
+    collection['links'].append({
+        'type': 'application/geo+json',
+        'rel': 'items',
+        'title': l10n.translate('Items as GeoJSON', request.locale),  # noqa
+        'href': f'{api.get_collections_url()}/{collection_id}/items?f={F_JSON}'  # noqa
+    })
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_JSONLD],
+        'rel': 'items',
+        'title': l10n.translate('Items as RDF (GeoJSON-LD)', request.locale),  # noqa
+        'href': f'{api.get_collections_url()}/{collection_id}/items?f={F_JSONLD}'  # noqa
+    })
+    collection['links'].append({
+        'type': FORMAT_TYPES[F_HTML],
+        'rel': 'items',
+        'title': l10n.translate('Items as HTML', request.locale),  # noqa
+        'href': f'{api.get_collections_url()}/{collection_id}/items?f={F_HTML}'  # noqa
+    })
+
+    
+    
+    return collection
