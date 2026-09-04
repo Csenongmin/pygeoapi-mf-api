@@ -1101,12 +1101,12 @@ class PostgresMobilityDB:
         :param mfeature_id: local identifier of a moving feature
         :param tgeometry_id: local identifier of a geometry
         :param datetime: either a date-time or an interval(datestamp or extent)
-        :param leaf: array of strings <date-time> (default None)
-                     only features that have a temporal geometry and property
-                     that intersects the given date-time are selected [optional]
-        :param sub_temporal_value: boolean, only features with a temporal property
-                                 intersecting the given time interval
-                                 will return (default False) [optional]
+        :param leaf: array of strings <date-time> (default None) \
+                    only features that have a temporal geometry and property \
+                    that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal property \
+                                intersecting the given time interval \
+                                will return (default False) [optional]
 
         :returns: TemporalProperty of velocity
         """
@@ -1115,7 +1115,8 @@ class PostgresMobilityDB:
         with self.connection.cursor() as cur:
             if (leaf == '' or leaf is None) and \
                     (not sub_temporal_value or sub_temporal_value == "false"):
-                # no optional query parameters are used -> time-to-velocity curve returns
+                # no optional query parameters are used 
+                # -> time-to-velocity curve returns 
                 select_query = \
                     f"""SELECT speed(tgeog_property) AS speed
                         FROM tgeometry
@@ -1127,22 +1128,23 @@ class PostgresMobilityDB:
                 # only leaf query parameter is used
                 leaf_condition = "tstzset('{"+leaf+"}')"
                 select_query = \
-                    f"""SELECT atTime(speed(tgeog_property),{leaf_condition}) AS speed
-                        FROM tgeometry
-                        WHERE collection_id = '{collection_id}'
-                        and mfeature_id = '{mfeature_id}'
+                    f"""SELECT atTime(speed(tgeog_property),{leaf_condition}) AS speed \
+                        FROM tgeometry \
+                        WHERE collection_id = '{collection_id}' \
+                        and mfeature_id = '{mfeature_id}' \
                         and tgeometry_id = '{tgeometry_id}'"""
             elif (leaf == '' or leaf is None) and \
                     (sub_temporal_value or sub_temporal_value == "true"):
                 # only sub_temporal_value query parameter is used
                 select_query = \
-                    f"""SELECT atTime(speed(tgeog_property), tstzspan('[{datetime}]')) AS speed
-                        FROM tgeometry
-                        WHERE collection_id = '{collection_id}'
-                        and mfeature_id = '{mfeature_id}'
+                    f"""SELECT atTime(speed(tgeog_property), \
+                        tstzspan('[{datetime}]')) AS speed \
+                        FROM tgeometry \
+                        WHERE collection_id = '{collection_id}' \
+                        and mfeature_id = '{mfeature_id}' \
                         and tgeometry_id = '{tgeometry_id}'"""
             else:
-               print("Not valid query parameters")
+                print("Not valid query parameters")
 
             cur.execute(select_query)
             result = cur.fetchall()
@@ -1158,9 +1160,9 @@ class PostgresMobilityDB:
         :param mfeature_id: local identifier of a moving feature
         :param tgeometry_id: local identifier of a geometry
         :param datetime: either a date-time or an interval(datestamp or extent)
-        :param leaf: array of strings <date-time> (default None)
-                     only features that have a temporal geometry and property
-                     that intersects the given date-time are selected [optional]
+        :param leaf: array of strings <date-time> (default None) \
+                    only features that have a temporal geometry and property \
+                    that intersects the given date-time are selected [optional]
         :param sub_temporal_value: boolean, only features with a temporal property
                                  intersecting the given time interval
                                  will return (default False) [optional]
@@ -1172,8 +1174,10 @@ class PostgresMobilityDB:
         name = "distance"
         with self.connection.cursor() as cur:
             if (leaf == '' or leaf is None) and \
-                    (not sub_temporal_value or sub_temporal_value == "false"):
-                # no optional query parameters are used -> time-to-velocity curve returns
+                    (not sub_temporal_value or \
+                     sub_temporal_value == "false"):
+                # no optional query parameters are used 
+                # -> time-to-velocity curve returns
                 select_query = \
                     f"""SELECT cumulativeLength(tgeog_property) AS distance
                         FROM tgeometry
@@ -1181,11 +1185,13 @@ class PostgresMobilityDB:
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
             elif (leaf != '' or leaf is not None) and \
-                    (not sub_temporal_value or sub_temporal_value == "false"):
+                    (not sub_temporal_value or \
+                     sub_temporal_value == "false"):
                 # only leaf query parameter is used
                 leaf_condition = "tstzset('{"+leaf+"}')"
                 select_query = \
-                    f"""SELECT atTime(cumulativeLength(tgeog_property),{leaf_condition}) AS distance
+                    f"""SELECT atTime(cumulativeLength(tgeog_property),\
+                        {leaf_condition}) AS distance
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1194,13 +1200,14 @@ class PostgresMobilityDB:
                     (sub_temporal_value or sub_temporal_value == "true"):
                 # only sub_temporal_value query parameter is used
                 select_query = \
-                    f"""SELECT atTime(cumulativeLength(tgeog_property), tstzspan('[{datetime}]')) AS distance
+                    f"""SELECT atTime(cumulativeLength(tgeog_property), \
+                        tstzspan('[{datetime}]')) AS distance
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
             else:
-               print("Not valid query parameters")
+                print("Not valid query parameters")
 
             cur.execute(select_query)
             result = cur.fetchall()
