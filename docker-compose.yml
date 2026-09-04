@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: pygeoapi-mf-api
+    platform: linux/amd64
     volumes:
       - ./mf-api.config.yml:/pygeoapi/local.config.yml
     ports:
@@ -23,4 +24,5 @@ services:
       context: .
       dockerfile: DockerfileMobiitydb
     image: pygeoapi-mf-api-mobilitydb
+    platform: linux/amd64
     restart: on-failure
