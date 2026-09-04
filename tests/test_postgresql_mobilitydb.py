@@ -657,8 +657,8 @@ def test_query_get_temporalgeometries(
             200,
             40,
             10],
-        leaf='2011-07-14 22:01:01.000',
-        datetime='2011-07-14 22:01:01.000,2011-07-14 22:01:01.000',
+        leaf='2011-07-14T13:01:01.000',
+        datetime='2011-07-14T13:01:01.000,2011-07-14T13:01:01.000',
         limit=10,
         offset=0,
         sub_trajectory=False):
@@ -712,8 +712,8 @@ def test_query_get_temporalproperties(
 
 def test_query_get_temporalproperties_value(
         context,
-        datetime='2011-07-16 22:01:01.450,2011-07-16 22:01:01.450',
-        leaf='2011-07-16 22:01:01.450',
+        datetime='2011-07-16T13:01:01.450,2011-07-16T13:01:01.450',
+        leaf='2011-07-16T13:01:01.450',
         sub_temporal_value=False):
     pmdb_provider = PostgresMobilityDB()
     pmdb_provider.connect()
