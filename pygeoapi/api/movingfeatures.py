@@ -2333,7 +2333,8 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "get": {
             "operationId": "retrieveMovingFeatures",
             "summary": "Retrieve moving feature collection",
-            "description": "A user can retrieve moving feature collection to access the static information of the moving feature by simple filtering and a limit.\n\nSpecifically, if the `subTrajectory` parameter is \"true\", it will return the temporal geometry within the time interval specified by `datetime` parameter.\n",
+            "description": "A user can retrieve moving feature collection to access the static information of the moving feature by simple filtering and a limit.\n\n\
+                Specifically, if the `subTrajectory` parameter is \"true\", it will return the temporal geometry within the time interval specified by `datetime` parameter.\n",
             "tags": ["MovingFeatures"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
