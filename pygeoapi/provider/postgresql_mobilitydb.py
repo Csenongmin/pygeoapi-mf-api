@@ -1142,7 +1142,7 @@ class PostgresMobilityDB:
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
             else:
-               print("Not valid query parameters")
+                print("Not valid query parameters")
 
             cur.execute(select_query)
             result = cur.fetchall()
@@ -1200,7 +1200,7 @@ class PostgresMobilityDB:
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
             else:
-               print("Not valid query parameters")
+                print("Not valid query parameters")
 
             cur.execute(select_query)
             result = cur.fetchall()
