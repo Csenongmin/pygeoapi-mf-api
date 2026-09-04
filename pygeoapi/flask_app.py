@@ -248,7 +248,7 @@ def collections(collection_id: str | None = None):
             return execute_from_flask(movingfeatures.manage_collection, request, 'create')
     else:
         collections_config = filter_dict_by_key_value(api_.config['resources'], 'type', 'collection')
-
+        
         # collection in config
         if collection_id in collections_config:
             return execute_from_flask(core_api.describe_collections, request, collection_id)

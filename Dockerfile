@@ -129,15 +129,8 @@ RUN apt-get update -y \
 
 ADD . /pygeoapi
 
-RUN apt-get update && apt-get install -y \
-    gdal-bin \
-    libgdal-dev \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install remaining pygeoapi deps and pygeoapi itself
 RUN python3 -m venv --system-site-packages /venv \
-    && /venv/bin/python3 -m pip install "GDAL==$(gdal-config --version)" \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-docker.txt \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-admin.txt \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-dev.txt \
