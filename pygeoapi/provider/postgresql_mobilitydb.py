@@ -1,19 +1,17 @@
 import json
 import datetime
-from datetime import UTC
 import psycopg2
 from functools import partial
 from dateutil.parser import parse as dateparse
 import pytz
-from pymeos import (Temporal, TFloatInst, TFloatSeq, TFloatSeqSet, pymeos_initialize)
+from pymeos import (Temporal, TFloatSeq, TFloatSeqSet, pymeos_initialize)
 from pygeoapi.util import format_datetime
 from pymeos_cffi import (tfloat_from_mfjson, ttext_from_mfjson,
                          tgeompoint_from_mfjson)
 
 
 class PostgresMobilityDB:
-    host = 'localhost'
-    # host = 'mobilitydb'
+    host = 'mobilitydb'
     port = 5432
     db = 'mobilitydb'
     user = 'docker'
@@ -1094,534 +1092,183 @@ class PostgresMobilityDB:
             return result[0][2]
         return 1
 
-    def get_velocity(
-            self,
-            collection_id,
-            mfeature_id,
-            tgeometry_id,
-            datetime='',
-            leaf='',
-            sub_temporal_value=False):
-
-        form = 'MTS'
-        name = 'velocity'
-
-        base_query = """
-                     SELECT {speed_expression} AS speed
-                     FROM tgeometry
-                     WHERE collection_id = %s
-                       AND mfeature_id = %s
-                       AND tgeometry_id = %s \
-                     """
-
-        speed_expression = "speed(tgeog_property)"
-
-        # Exact timestamp
-        if datetime and '/' not in datetime:
-            speed_expression = (
-                "atTime(speed(tgeog_property), %s::timestamptz)"
-            )
-            params = (
-                datetime,
-                collection_id,
-                mfeature_id,
-                tgeometry_id
-            )
-
-        # Interval
-        elif datetime and sub_temporal_value:
-            speed_expression = (
-                "atTime(speed(tgeog_property), tstzspan(%s))"
-            )
-            params = (
-                f'[{datetime}]',
-                collection_id,
-                mfeature_id,
-                tgeometry_id
-            )
-
-        # leaf
-        elif leaf:
-            speed_expression = (
-                "atTime(speed(tgeog_property), tstzset(%s))"
-            )
-            params = (
-                f'{{{leaf}}}',
-                collection_id,
-                mfeature_id,
-                tgeometry_id
-            )
-
-        # Full velocity curve
-        else:
-            params = (
-                collection_id,
-                mfeature_id,
-                tgeometry_id
-            )
-
-        select_query = base_query.format(
-            speed_expression=speed_expression
-        )
-
-        with self.connection.cursor() as cur:
-            cur.execute(select_query, params)
-            result = cur.fetchall()
-
-        return self.to_tproperties(result, name, form, leaf)
-
-    def get_distance(
-            self,
-            collection_id,
-            mfeature_id,
-            tgeometry_id,
-            datetime='',
-            leaf='',
-            sub_temporal_value=False):
+    def get_velocity(self, collection_id, mfeature_id, tgeometry_id,
+                     datetime='', leaf='', sub_temporal_value=False):
         """
-        Get temporal property of distance.
+        Get temporal property of velocity
 
         :param collection_id: local identifier of a collection
         :param mfeature_id: local identifier of a moving feature
         :param tgeometry_id: local identifier of a geometry
-        :param datetime: a date-time or an interval
-        :param leaf: array of date-time strings
-        :param sub_temporal_value: whether to return only the temporal
-                                   value intersecting the interval
+        :param datetime: either a date-time or an interval(datestamp or extent)
+        :param leaf: array of strings <date-time> (default None)
+                     only features that have a temporal geometry and property
+                     that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal property
+                                 intersecting the given time interval
+                                 will return (default False) [optional]
+
+        :returns: TemporalProperty of velocity
+        """
+        form = "MTS"
+        name = "velocity"
+        with self.connection.cursor() as cur:
+            if (leaf == '' or leaf is None) and \
+                    (not sub_temporal_value or sub_temporal_value == "false"):
+                # no optional query parameters are used -> time-to-velocity curve returns
+                select_query = \
+                    f"""SELECT speed(tgeog_property) AS speed
+                        FROM tgeometry
+                        WHERE collection_id = '{collection_id}'
+                        and mfeature_id = '{mfeature_id}'
+                        and tgeometry_id = '{tgeometry_id}'"""
+            elif (leaf != '' or leaf is not None) and \
+                    (not sub_temporal_value or sub_temporal_value == "false"):
+                # only leaf query parameter is used
+                leaf_condition = "tstzset('{"+leaf+"}')"
+                select_query = \
+                    f"""SELECT atTime(speed(tgeog_property),{leaf_condition}) AS speed
+                        FROM tgeometry
+                        WHERE collection_id = '{collection_id}'
+                        and mfeature_id = '{mfeature_id}'
+                        and tgeometry_id = '{tgeometry_id}'"""
+            elif (leaf == '' or leaf is None) and \
+                    (sub_temporal_value or sub_temporal_value == "true"):
+                # only sub_temporal_value query parameter is used
+                select_query = \
+                    f"""SELECT atTime(speed(tgeog_property), tstzspan('[{datetime}]')) AS speed
+                        FROM tgeometry
+                        WHERE collection_id = '{collection_id}'
+                        and mfeature_id = '{mfeature_id}'
+                        and tgeometry_id = '{tgeometry_id}'"""
+            else:
+               print("Not valid query parameters")
+
+            cur.execute(select_query)
+            result = cur.fetchall()
+
+        return self.to_tproperties(result, name, form, leaf)
+
+    def get_distance(self, collection_id, mfeature_id, tgeometry_id,
+                     datetime='', leaf='', sub_temporal_value=False):
+        """
+        Get temporal property of distance
+
+        :param collection_id: local identifier of a collection
+        :param mfeature_id: local identifier of a moving feature
+        :param tgeometry_id: local identifier of a geometry
+        :param datetime: either a date-time or an interval(datestamp or extent)
+        :param leaf: array of strings <date-time> (default None)
+                     only features that have a temporal geometry and property
+                     that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal property
+                                 intersecting the given time interval
+                                 will return (default False) [optional]
 
         :returns: TemporalProperty of distance
         """
 
         form = "MTR"
         name = "distance"
-
         with self.connection.cursor() as cur:
-
-            #
-            # 1. Single datetime
-            #
-            # datetime='2011-07-14T22:01:08Z'
-            #
-            if datetime and '/' not in datetime and ',' not in datetime:
-
-                select_query = """
-                               SELECT atTime(
-                                              cumulativeLength(tgeog_property),
-                                              %s::timestamptz
-                                      ) AS distance
-                               FROM tgeometry
-                               WHERE collection_id = %s
-                                 AND mfeature_id = %s
-                                 AND tgeometry_id = %s \
-                               """
-
-                params = (
-                    datetime,
-                    collection_id,
-                    mfeature_id,
-                    tgeometry_id
-                )
-
-            #
-            # 2. datetime interval + subTemporalValue
-            #
-            elif datetime and (
-                    sub_temporal_value is True or
-                    sub_temporal_value == "true"):
-
-                #
-                datetime_span = f"[{datetime}]"
-
-                select_query = """
-                               SELECT atTime(
-                                              cumulativeLength(tgeog_property),
-                                              tstzspan(%s)
-                                      ) AS distance
-                               FROM tgeometry
-                               WHERE collection_id = %s
-                                 AND mfeature_id = %s
-                                 AND tgeometry_id = %s \
-                               """
-
-                params = (
-                    datetime_span,
-                    collection_id,
-                    mfeature_id,
-                    tgeometry_id
-                )
-
-            #
-            # 3. leaf
-            #
-            elif leaf:
-
-                leaf_set = f"{{{leaf}}}"
-
-                select_query = """
-                               SELECT atTime(
-                                              cumulativeLength(tgeog_property),
-                                              tstzset(%s)
-                                      ) AS distance
-                               FROM tgeometry
-                               WHERE collection_id = %s
-                                 AND mfeature_id = %s
-                                 AND tgeometry_id = %s \
-                               """
-
-                params = (
-                    leaf_set,
-                    collection_id,
-                    mfeature_id,
-                    tgeometry_id
-                )
-
-            #
-            # 4. No optional parameters
-            #    Return the whole time-to-distance curve.
-            #
+            if (leaf == '' or leaf is None) and \
+                    (not sub_temporal_value or sub_temporal_value == "false"):
+                # no optional query parameters are used -> time-to-velocity curve returns
+                select_query = \
+                    f"""SELECT cumulativeLength(tgeog_property) AS distance
+                        FROM tgeometry
+                        WHERE collection_id = '{collection_id}'
+                        and mfeature_id = '{mfeature_id}'
+                        and tgeometry_id = '{tgeometry_id}'"""
+            elif (leaf != '' or leaf is not None) and \
+                    (not sub_temporal_value or sub_temporal_value == "false"):
+                # only leaf query parameter is used
+                leaf_condition = "tstzset('{"+leaf+"}')"
+                select_query = \
+                    f"""SELECT atTime(cumulativeLength(tgeog_property),{leaf_condition}) AS distance
+                        FROM tgeometry
+                        WHERE collection_id = '{collection_id}'
+                        and mfeature_id = '{mfeature_id}'
+                        and tgeometry_id = '{tgeometry_id}'"""
+            elif (leaf == '' or leaf is None) and \
+                    (sub_temporal_value or sub_temporal_value == "true"):
+                # only sub_temporal_value query parameter is used
+                select_query = \
+                    f"""SELECT atTime(cumulativeLength(tgeog_property), tstzspan('[{datetime}]')) AS distance
+                        FROM tgeometry
+                        WHERE collection_id = '{collection_id}'
+                        and mfeature_id = '{mfeature_id}'
+                        and tgeometry_id = '{tgeometry_id}'"""
             else:
+               print("Not valid query parameters")
 
-                select_query = """
-                               SELECT cumulativeLength(tgeog_property) AS distance
-                               FROM tgeometry
-                               WHERE collection_id = %s
-                                 AND mfeature_id = %s
-                                 AND tgeometry_id = %s \
-                               """
-
-                params = (
-                    collection_id,
-                    mfeature_id,
-                    tgeometry_id
-                )
-
-            cur.execute(select_query, params)
+            cur.execute(select_query)
             result = cur.fetchall()
 
-        return self.to_tproperties(
-            result,
-            name,
-            form,
-            leaf
-        )
+        return self.to_tproperties(result, name, form, leaf)
 
-    def get_acceleration(
-            self,
-            collection_id,
-            mfeature_id,
-            tgeometry_id,
-            datetime_='',
-            leaf='',
-            sub_temporal_value=False):
+    def get_acceleration(self, collection_id, mfeature_id, tgeometry_id,
+                         datetime='', leaf='', sub_temporal_value=False):
         """
-        Get the temporal property representing acceleration.
+       Get temporal property of acceleration
 
-        Acceleration is calculated from consecutive speed values using
-        a backward finite difference:
+        :param collection_id: local identifier of a collection
+        :param mfeature_id: local identifier of a moving feature
+        :param tgeometry_id: local identifier of a geometry
+        :param datetime: either a date-time or an interval(datestamp or extent)
+        :param leaf: array of strings <date-time> (default None)
+                     only features that have a temporal geometry and property
+                     that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal property
+                                 intersecting the given time interval
+                                 will return (default False) [optional]
 
-            acceleration(t_i) =
-                (speed(t_i) - speed(t_i-1)) /
-                (t_i - t_i-1)
-
-        The result can be filtered by:
-          - a single datetime
-          - one or more leaf timestamps
-          - a datetime interval with subTemporalValue=true
-
-        :param collection_id: Local identifier of a collection
-        :param mfeature_id: Local identifier of a moving feature
-        :param tgeometry_id: Local identifier of a temporal geometry
-        :param datetime_: A single datetime or datetime interval
-        :param leaf: One or more individual datetime values
-        :param sub_temporal_value: Restrict the result to the datetime interval
-
-        :returns: TemporalProperty object containing acceleration values
+        :returns: TemporalProperty of acceleration
         """
 
-        t_property = {
+        tProperty = {
             "name": "acceleration",
             "type": "TReal",
-            "form": "MTR",
+            "form": "MTS",
             "valueSequence": []
         }
-
-        query = """
-                SELECT speed(tgeog_property) AS speed
-                FROM tgeometry
-                WHERE collection_id = %s
-                  AND mfeature_id = %s
-                  AND tgeometry_id = %s \
-                """
-
         with self.connection.cursor() as cur:
-            cur.execute(
-                query,
-                (
-                    collection_id,
-                    mfeature_id,
-                    tgeometry_id
-                )
-            )
-            results = cur.fetchall()
+            select_query = \
+                f"""SELECT speed(tgeog_property) AS speed
+                    FROM tgeometry
+                    WHERE collection_id = '{collection_id}'
+                    and mfeature_id = '{mfeature_id}'
+                    and tgeometry_id = '{tgeometry_id}'"""
+            cur.execute(select_query)
+            result = cur.fetchall()
 
         pymeos_initialize()
+        for each_row in result:
+            each_row_converted = TFloatSeqSet(each_row[0])
+            interpolation = each_row_converted.interpolation().to_string()
 
-        for row in results:
-            if not row or row[0] is None:
-                continue
-
-            raw_value = str(row[0]).strip()
-
-            # Remove the interpolation prefix only for subtype detection.
-            normalized_value = raw_value
-
-            if normalized_value.startswith("Interp="):
-                _, normalized_value = normalized_value.split(";", 1)
-                normalized_value = normalized_value.strip()
-
-            # Parse the temporal float returned by MobilityDB.
-            if normalized_value.startswith("{[") or \
-                    normalized_value.startswith("{("):
-                temporal_value = TFloatSeqSet(string=raw_value)
-                instants = temporal_value.instants()
-
-            elif normalized_value.startswith("[") or \
-                    normalized_value.startswith("("):
-                temporal_value = TFloatSeq(string=raw_value)
-                instants = temporal_value.instants()
-
-            elif normalized_value.startswith("{"):
-                temporal_value = TFloatSeq(string=raw_value)
-                instants = temporal_value.instants()
-
+            each_time = [
+                each_val.time().start_timestamp().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                for each_val in each_row_converted.instants()]
+            if interpolation == "Step":
+                each_values = [0 for each_val in each_row_converted.instants()]
             else:
-                temporal_value = TFloatInst(string=raw_value)
-                instants = [temporal_value]
+                each_values = [each_val.value() for each_val in each_row_converted.instants()]
 
-            # At least two speed values are required to calculate acceleration.
-            if len(instants) < 2:
-                continue
-
-            speed_values = []
-            timestamps = []
-
-            for instant in instants:
-                speed_values.append(float(instant.value()))
-
-                timestamp = instant.time().start_timestamp()
-
-                # Normalize every timestamp to UTC.
-                if timestamp.tzinfo is None:
-                    timestamp = timestamp.replace(tzinfo=UTC)
+            value_sequence = self.calculate_acceleration(each_values, each_time, datetime)
+            if value_sequence.get("values"):
+                if datetime is not None:
+                    value_sequence["interpolation"] = "Discrete"
+                elif interpolation == "Linear":
+                    value_sequence["interpolation"] = "Step"
                 else:
-                    timestamp = timestamp.astimezone(UTC)
+                    value_sequence["interpolation"] = interpolation
+            tProperty["valueSequence"].append(value_sequence)
+        return tProperty
 
-                timestamps.append(timestamp)
-
-            acceleration_values = []
-            acceleration_times = []
-
-            # Calculate acceleration from consecutive speed samples.
-            # The resulting acceleration is associated with the later timestamp.
-            for index in range(1, len(speed_values)):
-                delta_velocity = (
-                        speed_values[index] -
-                        speed_values[index - 1]
-                )
-
-                delta_time = (
-                        timestamps[index] -
-                        timestamps[index - 1]
-                ).total_seconds()
-
-                if delta_time <= 0:
-                    continue
-
-                acceleration = delta_velocity / delta_time
-
-                acceleration_values.append(acceleration)
-                acceleration_times.append(timestamps[index])
-
-            if not acceleration_values:
-                continue
-
-            filtered_times = acceleration_times
-            filtered_values = acceleration_values
-            interpolation = "Step"
-
-            #
-            # Filter by leaf timestamps.
-            #
-            if leaf:
-                if isinstance(leaf, str):
-                    leaf_values = [
-                        value.strip()
-                        for value in leaf.split(',')
-                        if value.strip()
-                    ]
-                else:
-                    leaf_values = leaf
-
-                leaf_times = set()
-
-                for value in leaf_values:
-                    leaf_time = datetime.fromisoformat(
-                        value.replace('Z', '+00:00')
-                    )
-
-                    if leaf_time.tzinfo is None:
-                        leaf_time = leaf_time.replace(tzinfo=UTC)
-                    else:
-                        leaf_time = leaf_time.astimezone(UTC)
-
-                    leaf_times.add(leaf_time)
-
-                filtered = [
-                    (timestamp, value)
-                    for timestamp, value in zip(
-                        acceleration_times,
-                        acceleration_values
-                    )
-                    if timestamp in leaf_times
-                ]
-
-                filtered_times = [
-                    timestamp
-                    for timestamp, _ in filtered
-                ]
-
-                filtered_values = [
-                    value
-                    for _, value in filtered
-                ]
-
-                interpolation = "Discrete"
-
-            #
-            # Filter by datetime.
-            #
-            elif datetime_:
-                datetime_value = str(datetime_).strip()
-
-                separator = None
-
-                if '/' in datetime_value:
-                    separator = '/'
-                elif ',' in datetime_value:
-                    separator = ','
-
-                #
-                # Single datetime:
-                # 2011-07-14T13:01:08Z
-                #
-                if separator is None:
-                    target_time = datetime.datetime.fromisoformat(
-                        datetime_value.replace('Z', '+00:00')
-                    )
-
-                    if target_time.tzinfo is None:
-                        target_time = target_time.replace(tzinfo=UTC)
-                    else:
-                        target_time = target_time.astimezone(UTC)
-
-                    filtered = [
-                        (timestamp, value)
-                        for timestamp, value in zip(
-                            acceleration_times,
-                            acceleration_values
-                        )
-                        if timestamp == target_time
-                    ]
-
-                    filtered_times = [
-                        timestamp
-                        for timestamp, _ in filtered
-                    ]
-
-                    filtered_values = [
-                        value
-                        for _, value in filtered
-                    ]
-
-                    interpolation = "Discrete"
-
-                #
-                # Datetime interval with subTemporalValue=true.
-                #
-                elif (
-                        sub_temporal_value is True or
-                        str(sub_temporal_value).lower() == "true"
-                ):
-                    start_value, end_value = datetime_value.split(
-                        separator,
-                        1
-                    )
-
-                    start_time = datetime.fromisoformat(
-                        start_value.replace('Z', '+00:00')
-                    )
-
-                    end_time = datetime.fromisoformat(
-                        end_value.replace('Z', '+00:00')
-                    )
-
-                    if start_time.tzinfo is None:
-                        start_time = start_time.replace(tzinfo=UTC)
-                    else:
-                        start_time = start_time.astimezone(UTC)
-
-                    if end_time.tzinfo is None:
-                        end_time = end_time.replace(tzinfo=UTC)
-                    else:
-                        end_time = end_time.astimezone(UTC)
-
-                    filtered = [
-                        (timestamp, value)
-                        for timestamp, value in zip(
-                            acceleration_times,
-                            acceleration_values
-                        )
-                        if start_time <= timestamp <= end_time
-                    ]
-
-                    filtered_times = [
-                        timestamp
-                        for timestamp, _ in filtered
-                    ]
-
-                    filtered_values = [
-                        value
-                        for _, value in filtered
-                    ]
-
-            if not filtered_values:
-                continue
-
-            formatted_times = [
-                timestamp.strftime(
-                    '%Y-%m-%dT%H:%M:%S.%fZ'
-                )
-                for timestamp in filtered_times
-            ]
-
-            value_sequence = {
-                "datetimes": formatted_times,
-                "values": filtered_values,
-                "interpolation": interpolation
-            }
-
-            t_property["valueSequence"].append(value_sequence)
-
-        return t_property
     def to_tproperties(self, results, name, form, leaf):
         """
-        Convert temporal property query results to an MF-JSON-like
-        TemporalProperty object.
-
-        Supports temporal float values returned as:
-          - TFloatInst
-          - TFloatSeq
-          - TFloatSeqSet
+        Convert Temporal properties object
 
         :param results: temporal property object of query
         :param name: temporal property name
@@ -1630,7 +1277,7 @@ class PostgresMobilityDB:
 
         :returns: TemporalProperty object
         """
-        t_property = {
+        tProperty = {
             "name": name,
             "type": "TReal",
             "form": form,
@@ -1638,107 +1285,27 @@ class PostgresMobilityDB:
         }
 
         pymeos_initialize()
-
         for each_row in results:
-            if not each_row:
-                continue
-
-            raw_value = each_row[0]
-
-            # atTime() returns NULL when the requested timestamp
-            # does not intersect the temporal value.
-            if raw_value is None:
-                continue
-
-            # psycopg2 normally returns the MobilityDB temporal value
-            # as a string because the MobilityDB type adapter is not
-            # currently registered.
-            temporal_string = str(raw_value).strip()
-
-            #
-            # Detect the temporal subtype returned by MobilityDB.
-            #
-            # Examples:
-            #
-            # Instant:
-            #   0.123@2011-07-14 22:01:08+00
-            #
-            # Sequence:
-            #   [0.1@..., 0.2@...]
-            #
-            # Discrete sequence:
-            #   {0.1@..., 0.2@...}
-            #
-            # SequenceSet:
-            #   {[0.1@..., 0.2@...], [0.3@..., 0.4@...]}
-            #
-            normalized = temporal_string
-
-            if normalized.startswith("Interp="):
-                _, normalized = normalized.split(";", 1)
-                normalized = normalized.strip()
-
-            if normalized.startswith("{[") or normalized.startswith("{("):
-                temporal_value = TFloatSeqSet(
-                    string=temporal_string
-                )
-                instants = temporal_value.instants()
-                interpolation = temporal_value.interpolation().to_string()
-
-            elif normalized.startswith("[") or normalized.startswith("("):
-                temporal_value = TFloatSeq(
-                    string=temporal_string
-                )
-                instants = temporal_value.instants()
-                interpolation = temporal_value.interpolation().to_string()
-
-            elif normalized.startswith("{"):
-                # A plain {...} temporal float represents a discrete
-                # sequence rather than a sequence set.
-                temporal_value = TFloatSeq(
-                    string=temporal_string
-                )
-                instants = temporal_value.instants()
-                interpolation = temporal_value.interpolation().to_string()
-
+            each_row_converted = None
+            if name == "velocity":
+                each_row_converted = TFloatSeqSet(each_row[0])
             else:
-                # atTime(..., timestamptz) returns a single temporal instant.
-                temporal_value = TFloatInst(
-                    string=temporal_string
-                )
-                instants = [temporal_value]
-                interpolation = "Discrete"
+                each_row_converted = TFloatSeq(each_row[0])
 
-            values = [
-                instant.value()
-                for instant in instants
-            ]
-
-            datetimes = []
-
-            for instant in instants:
-                timestamp = instant.time().start_timestamp()
-
-                # Never append "Z" to a local-time datetime directly.
-                # Convert explicitly to UTC first.
-                if timestamp.tzinfo is not None:
-                    timestamp = timestamp.astimezone(UTC)
-
-                datetimes.append(
-                    timestamp.strftime(
-                        "%Y-%m-%dT%H:%M:%S.%fZ"
-                    )
-                )
+            each_values = [each_val.value() for each_val in each_row_converted.instants()]
+            each_time = [
+                each_val.time().start_timestamp().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                for each_val in each_row_converted.instants()]
+            interpolation = each_row_converted.interpolation().to_string()
 
             value_sequence = {
-                "datetimes": datetimes,
-                "values": values,
+                "datetimes": each_time,
+                "values": each_values,
                 "interpolation": interpolation
             }
+            tProperty["valueSequence"].append(value_sequence)
+        return tProperty
 
-            t_property["valueSequence"].append(value_sequence)
-
-        return t_property
     def calculate_acceleration(self, velocities, times, chk_dtime):
         """
         Calculate acceleration
