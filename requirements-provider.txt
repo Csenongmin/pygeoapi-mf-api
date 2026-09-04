@@ -4,8 +4,8 @@ azure-storage-blob
 cftime
 elasticsearch
 elasticsearch-dsl
-#fiona
-#GDAL<=3.11.3
+fiona
+GDAL<=3.11.3
 geoalchemy2
 geopandas
 netCDF4
@@ -25,4 +25,3 @@ sodapy
 xarray
 zarr<3
 s3fs<=2023.6.0
-pymeos
