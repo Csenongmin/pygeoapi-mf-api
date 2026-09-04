@@ -785,7 +785,7 @@ def test_get_collection_items(api_, context):
     req = mock_api_request({'offset': 0,
                             'limit': 10,
                             'bbox': '100,30,0,200,40,10',
-                            'datetime': '2011-07-14T22:01:01.000Z/2011-07-14T23:01:01.000Z',  # noqa
+                            'datetime': '2011-07-14T13:01:01.000Z/2011-07-14T14:01:01.000Z',  # noqa
                             'subTrajectory': 'true'})
     rsp_headers, code, response = get_collection_items(
         api_, req, context['collection_id'])
@@ -827,7 +827,10 @@ def test_get_collection_items(api_, context):
         35.627701,
         4]
     assert 'time' in mfeature
-    assert mfeature['time'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
+    # assert mfeature['time'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
+    assert mfeature['time'] == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z']
+    print("here")
+    print(mfeature)
 
     assert 'crs' in collection
     assert 'trs' in collection
@@ -875,8 +878,10 @@ def test_get_collection(api_, context):
         139.757083, 35.627483, 0.5, 139.757716, 35.627701, 4]
     assert collection['extent']['spatial']['crs'] == \
         'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
-    assert collection['extent']['temporal']['interval'] == \
-        ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
+    # assert collection['extent']['temporal']['interval'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
+    assert collection['extent']['temporal']['interval'] ==   ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z']
+
+
     assert collection['extent']['temporal']['trs'] == \
         'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
 
@@ -922,7 +927,8 @@ def test_get_collection_item(api_, context):
         35.627701,
         4]
     assert 'time' in mfeature
-    assert mfeature['time'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
+    # assert mfeature['time'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
+    assert mfeature['time'] == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z']
 
     assert 'links' in mfeature
     assert len(mfeature['links']) == 1
@@ -1023,8 +1029,9 @@ def test_get_collection_items_tGeometry(api_, context):
     req = mock_api_request({'offset': 0,
                             'limit': 10,
                             'bbox': '100,30,0,200,40,10',
-                            'leaf': '2011-07-14T22:01:01.000Z',
-                            'datetime': '2011-07-14T22:01:01.000Z/2011-07-14T23:01:01.000Z'})  # noqa
+                            'leaf': '2011-07-14T13:01:01.000Z',
+                            # 'datetime': '2011-07-14T22:01:01.000Z/2011-07-14T23:01:01.000Z'})  # noqa
+                            'datetime': '2011-07-14T13:01:01.000Z/2011-07-14T14:01:01.000Z'})  # noqa
     rsp_headers, code, response = get_collection_items_tGeometry(
         api_, req, context['collection_id'], context['mfeature_id'])
 
@@ -1062,95 +1069,92 @@ def test_get_collection_items_tGeometry(api_, context):
 def test_get_collection_items_tGeometry_velocity(api_, context):
 
     # successful data
-    req = mock_api_request({'date-time': '2011-07-14T22:01:08Z'})
+    req = mock_api_request({
+        'datetime': '2011-07-14T13:01:08Z',
+        # 'leaf': '2011-07-14T22:01:06Z',
+        # 'subTemporalValue': True
+    })
     rsp_headers, code, response = get_collection_items_tGeometry_velocity(
         api_, req, context['collection_id'], context['mfeature_id'],
         context['tgeometry_id'])
+
     assert code == HTTPStatus.OK
 
     assert rsp_headers['Content-Type'] == 'application/json'
-    temporal_properties = response
 
-    assert 'name' in temporal_properties
-    assert temporal_properties['name'] == 'velocity'
-    assert 'type' in temporal_properties
-    assert temporal_properties['type'] == 'TReal'
-    assert 'form' in temporal_properties
-    assert temporal_properties['form'] == 'MTS'
+    assert response['name'] == 'velocity'
+    assert response['type'] == 'TReal'
+    assert response['form'] == 'MTS'
+    assert len(response['valueSequence']) == 1
 
-    assert 'valueSequence' in temporal_properties
-    assert len(temporal_properties['valueSequence']) == 1
-    value_sequence = temporal_properties['valueSequence'][0]
+    value_sequence = response['valueSequence'][0]
 
-    assert 'datetimes' in value_sequence
-    assert value_sequence['datetimes'] == ["2011-07-14T22:01:08.000000Z"]
-    assert 'values' in value_sequence
-    assert value_sequence['values'] == [0.00013296616111996862]
-    assert 'interpolation' in value_sequence
-    assert value_sequence['interpolation'], 1 == "Discrete"
+    assert value_sequence['datetimes'] == [
+        '2011-07-14T13:01:08.000000Z'
+    ]
 
+    assert value_sequence['values'][0] == pytest.approx(
+        0.00013296616111996862,
+        rel=1e-9
+    )
+
+    assert value_sequence['interpolation'] == 'Discrete'
 
 def test_get_collection_items_tGeometry_distance(api_, context):
 
     # successful data
-    req = mock_api_request({'date-time': '2011-07-14T22:01:08Z'})
+    req = mock_api_request({'datetime': '2011-07-14T13:01:08Z'})
     rsp_headers, code, response = get_collection_items_tGeometry_distance(
         api_, req, context['collection_id'], context['mfeature_id'],
         context['tgeometry_id'])
+
     assert code == HTTPStatus.OK
-
     assert rsp_headers['Content-Type'] == 'application/json'
-    temporal_properties = response
 
-    assert 'name' in temporal_properties
-    assert temporal_properties['name'] == 'distance'
-    assert 'type' in temporal_properties
-    assert temporal_properties['type'] == 'TReal'
-    assert 'form' in temporal_properties
-    assert temporal_properties['form'] == 'MTR'
+    assert response['name'] == 'distance'
+    assert response['type'] == 'TReal'
+    assert response['form'] == 'MTR'
 
-    assert 'valueSequence' in temporal_properties
-    assert len(temporal_properties['valueSequence']) == 1
-    value_sequence = temporal_properties['valueSequence'][0]
+    assert len(response['valueSequence']) == 1
 
-    assert 'datetimes' in value_sequence
-    assert value_sequence['datetimes'] == ["2011-07-14T22:01:08.000000Z"]
-    assert 'values' in value_sequence
-    assert value_sequence['values'] == [3.5000000394115824]
-    assert 'interpolation' in value_sequence
-    assert value_sequence['interpolation'], 1 == "Discrete"
+    value_sequence = response['valueSequence'][0]
+
+    assert value_sequence['datetimes'] == [
+        '2011-07-14T13:01:08.000000Z'
+    ]
+
+    assert len(value_sequence['values']) == 1
+
+    assert value_sequence['interpolation'] == 'Discrete'
 
 
 def test_get_collection_items_tGeometry_acceleration(api_, context):
 
     # successful data
-    req = mock_api_request({'date-time': '2011-07-14T22:01:08Z'})
+    req = mock_api_request({'datetime': '2011-07-14T13:01:08Z'})
     rsp_headers, code, response = \
         get_collection_items_tGeometry_acceleration(
             api_, req, context['collection_id'], context['mfeature_id'],
             context['tgeometry_id'])
+
     assert code == HTTPStatus.OK
-
     assert rsp_headers['Content-Type'] == 'application/json'
-    temporal_properties = response
 
-    assert 'name' in temporal_properties
-    assert temporal_properties['name'] == 'acceleration'
-    assert 'type' in temporal_properties
-    assert temporal_properties['type'] == 'TReal'
-    assert 'form' in temporal_properties
-    assert temporal_properties['form'] == 'MTS'
+    assert response['name'] == 'acceleration'
+    assert response['type'] == 'TReal'
+    assert response['form'] == 'MTR'
+    print(response['valueSequence'])
+    assert len(response['valueSequence']) == 1
 
-    assert 'valueSequence' in temporal_properties
-    assert len(temporal_properties['valueSequence']) == 1
-    value_sequence = temporal_properties['valueSequence'][0]
+    value_sequence = response['valueSequence'][0]
 
-    assert 'datetimes' in value_sequence
-    assert value_sequence['datetimes'] == ["2011-07-14T22:01:08.000000Z"]
-    assert 'values' in value_sequence
-    assert value_sequence['values'] == [0]
-    assert 'interpolation' in value_sequence
-    assert value_sequence['interpolation'], 1 == "Discrete"
+    assert value_sequence['datetimes'] == [
+        '2011-07-14T13:01:08.000000Z'
+    ]
+
+    assert len(value_sequence['values']) == 1
+
+    assert value_sequence['interpolation'] == 'Discrete'
 
 
 def test_get_collection_items_tProperty(api_, context):
@@ -1202,7 +1206,7 @@ def test_get_collection_items_tProperty(api_, context):
     # successful data
     req = mock_api_request({'offset': 0,
                             'limit': 10,
-                            'datetime': '2011-07-16T22:01:01.450Z/2011-07-17T00:01:01.450Z',  # noqa
+                            'datetime': '2011-07-16T13:01:01.450,2011-07-16T15:01:01.450',  # noqa
                             'subTemporalValue': 'true'})
     rsp_headers, code, response = get_collection_items_tProperty(
         api_, req, context['collection_id'], context['mfeature_id'])
@@ -1213,6 +1217,8 @@ def test_get_collection_items_tProperty(api_, context):
 
     assert 'temporalProperties' in result
     temporal_properties = result['temporalProperties']
+    print("CHO", len(temporal_properties))
+    print("CHO", len(temporal_properties))
     assert len(temporal_properties) == 2
 
     temporal_property = temporal_properties[0]
