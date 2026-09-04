@@ -2,6 +2,10 @@ name: flake8
 
 on:
   [ push, pull_request ]
+  
+permissions:
+  contents: read
+  checks: write
 
 jobs:
   flake8_py3:

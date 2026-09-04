@@ -1236,7 +1236,7 @@ def get_collection_items_tGeometry_distance(
 
 def get_collection_items_tGeometry_acceleration(
         api: API, request: APIRequest,
-        dataset, identifier, tGeometry) -> Tuple[dict,int, str]:
+        dataset, identifier, tGeometry) -> Tuple[dict, int, str]:
     """
     Get a time-to-acceleration curve of a temporal primitive geometry
 
@@ -2267,6 +2267,7 @@ def check_required_field_trs(trs):
         return False
     return True
 
+
 # fmt: off
 def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, dict]]:
     """
@@ -2431,7 +2432,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                     "headers": {
                         "Locations": {
                             "description": "A list of URI of the newly added resources",
-                            "schema": {"type": "array","items": {"type": "string"}}
+                            "schema": {"type": "array", "items": {"type": "string"}}
                         }
                     }
                 },
@@ -2511,19 +2512,19 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                         "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalPrimitiveGeometry"},
                         "example": {
                             "type": "MovingPoint",
-                            "datetimes": ["2011-07-14T22:01:06Z","2011-07-14T22:01:07Z","2011-07-14T22:01:08Z","2011-07-14T22:01:09Z","2011-07-14T22:01:10Z"],
-                            "coordinates": [ [139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0] ],
+                            "datetimes": ["2011-07-14T22:01:06Z", "2011-07-14T22:01:07Z", "2011-07-14T22:01:08Z", "2011-07-14T22:01:09Z", "2011-07-14T22:01:10Z"],
+                            "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]],
                             "interpolation": "Linear",
                             "base": {
                                 "type": "glTF",
                                 "href": "https://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/car3dmodel.gltf"
                             },
                             "orientations": [
-                                {"scales":[1,1,1], "angles":[0,0,0]},
-                                {"scales":[1,1,1], "angles":[0,355,0]},
-                                {"scales":[1,1,1], "angles":[0,0,330]},
-                                {"scales":[1,1,1], "angles":[0,0,300]},
-                                {"scales":[1,1,1], "angles":[0,0,270]}
+                                {"scales": [1, 1, 1], "angles": [0, 0, 0]},
+                                {"scales": [1, 1, 1], "angles": [0, 355, 0]},
+                                {"scales": [1, 1, 1], "angles": [0, 0, 330]},
+                                {"scales": [1, 1, 1], "angles": [0, 0, 300]},
+                                {"scales": [1, 1, 1], "angles": [0, 0, 270]}
                             ]
                         }
                     }
@@ -2628,7 +2629,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/AccelerationQuery"  },
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/AccelerationQuery"},
                 "400": {"description": "A query parameter was not validly used."},
                 "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
             }
@@ -2669,9 +2670,9 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                     "application/json": {
                         "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalProperties-mfjson"},
                         "example": [
-                            {"datetimes": ["2011-07-14T22:01:01.450Z","2011-07-14T23:01:01.450Z","2011-07-15T00:01:01.450Z"],
-                             "length": {"type": "Measure","form": "http://qudt.org/vocab/quantitykind/Length","values": [1,2.4,1],"interpolation": "Linear"},
-                             "discharge": {"type": "Measure","form": "MQS","values": [3,4,5],"interpolation": "Step"}}
+                            {"datetimes": ["2011-07-14T22:01:01.450Z", "2011-07-14T23:01:01.450Z", "2011-07-15T00:01:01.450Z"],
+                             "length": {"type": "Measure", "form": "http://qudt.org/vocab/quantitykind/Length", "values": [1, 2.4, 1], "interpolation": "Linear"},
+                             "discharge": {"type": "Measure", "form": "MQS", "values": [3, 4, 5], "interpolation": "Step"}}
                         ]
                     }
                 }
@@ -2682,8 +2683,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                     "headers": {
                         "Locations": {
                             "description": "A list of URI of the newly added resources",
-                            "schema": {"type": "array","items": {"type": "string"}
-                            }
+                            "schema": {"type": "array", "items": {"type": "string"}}
                         }
                     }
                 },
@@ -2729,8 +2729,8 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                     "application/json": {
                         "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalPrimitiveValue"},
                         "example": {
-                            "datetimes": ["2011-07-15T08:00:00Z","2011-07-15T08:00:01Z","2011-07-15T08:00:02Z"],
-                            "values": [0,20,50],
+                            "datetimes": ["2011-07-15T08:00:00Z", "2011-07-15T08:00:01Z", "2011-07-15T08:00:02Z"],
+                            "values": [0, 20, 50],
                             "interpolation": "Linear"
                         }
                     }
