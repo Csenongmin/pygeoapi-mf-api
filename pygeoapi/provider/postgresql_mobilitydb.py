@@ -11,7 +11,7 @@ from pymeos_cffi import (tfloat_from_mfjson, ttext_from_mfjson,
 
 
 class PostgresMobilityDB:
-    host = 'mobilitydb'
+    host = 'localhost'
     port = 5432
     db = 'mobilitydb'
     user = 'docker'
