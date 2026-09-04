@@ -127,18 +127,13 @@ RUN apt-get update -y \
     && apt autoremove -y  \
     && rm -rf /var/lib/apt/lists/*
 
-ADD requirements-docker.txt requirements-admin.txt requirements-provider.txt /pygeoapi/
-# Install remaining pygeoapi deps
-RUN python3 -m pip install --no-cache-dir -r requirements-docker.txt \
-    && python3 -m pip install --no-cache-dir -r requirements-admin.txt \
-    && python3 -m pip install --no-cache-dir -r requirements-provider.txt
-
 ADD . /pygeoapi
 
 # Install remaining pygeoapi deps and pygeoapi itself
 RUN python3 -m venv --system-site-packages /venv \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-docker.txt \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-admin.txt \
+    && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-provider.txt \
     && /venv/bin/python3 -m pip install --no-cache-dir "gunicorn<24" \
     && /venv/bin/python3 -m pip install --no-cache-dir -e .
 

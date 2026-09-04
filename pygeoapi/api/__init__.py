@@ -43,8 +43,7 @@ Returns content from plugins and sets responses.
 from pymeos import pymeos_initialize
 import psycopg2
 from pygeoapi.provider.postgresql_mobilitydb import PostgresMobilityDB
-import asyncio
-from collections import OrderedDict
+from pygeoapi.api.collection import gen_mf_collection
 from collections import ChainMap
 from copy import deepcopy
 from datetime import datetime
@@ -55,13 +54,11 @@ import logging
 import re
 import sys
 from typing import Any, Tuple, Union, Self
-
 from babel import Locale
 from dateutil.parser import parse as dateparse
 import pytz
-
 from pygeoapi import __version__, l10n
-from pygeoapi.api.collection import gen_collection, OGC_RELTYPES_BASE, gen_mf_collection
+from pygeoapi.api.collection import gen_collection, OGC_RELTYPES_BASE
 from pygeoapi.formats import FORMAT_TYPES, F_GZIP, F_HTML, F_JSON, F_JSONLD
 from pygeoapi.linked_data import jsonldify, jsonldify_collection
 from pygeoapi.log import setup_logger
@@ -952,8 +949,8 @@ def conformance(api: API, request: APIRequest) -> Tuple[dict, int, str]:
                     conformance_list.extend(
                         apis_dict['itemtypes'].CONFORMANCE_CLASSES_RECORDS)
                 if provider['type'] == 'movingfeatures':
-                        conformance_list.extend(
-                            apis_dict['movingfeatures'].CONFORMANCE_CLASSES_RECORDS)  # noqa
+                    conformance_list.extend(
+                        apis_dict['movingfeatures'].CONFORMANCE_CLASSES_RECORDS)  # noqa
 
     if api.pubsub_client is not None:
         conformance_list.extend(apis_dict['pubsub'].CONFORMANCE_CLASSES)
@@ -1046,7 +1043,7 @@ def describe_collections(api: API, request: APIRequest,
                 request.format,
                 'ConnectingError',
                 msg)
-    
+
     if dataset is None:
         # TODO: translate
         fcm['links'].append({

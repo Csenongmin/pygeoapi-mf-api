@@ -440,7 +440,7 @@ def gen_collection(api, request, dataset: str,
                 'type': FORMAT_TYPES[F_HTML],
                 'rel': 'data',
                 'title': title2,
-                'href': f'{api.get_collections_url()}/{dataset}/{qt}?f={F_HTML}'  # noqa 
+                'href': f'{api.get_collections_url()}/{dataset}/{qt}?f={F_HTML}'  # noqa
             }])
 
             for key, value in get_dataset_formatters(config).items():
@@ -458,13 +458,13 @@ def gen_collection(api, request, dataset: str,
 def gen_mf_collection(api, request, row) -> dict:
     """
         Generate Moving Features Collection description
-    
+
         :param api: `APIRequest` object
         :param row: single mf-collection data retrieved by pmdb_provider
-    
+
         :returns: `dict` of Moving Features Collection description
     """
-    
+
     collection_id = row[0]
     collection = row[1]
     collection['itemType'] = 'movingfeature'
@@ -583,6 +583,4 @@ def gen_mf_collection(api, request, row) -> dict:
         'href': f'{api.get_collections_url()}/{collection_id}/items?f={F_HTML}'  # noqa
     })
 
-    
-    
     return collection

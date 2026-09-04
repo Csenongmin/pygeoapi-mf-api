@@ -321,32 +321,37 @@ def collection_items(collection_id: str, item_id: str | None = None):
                         itemtypes_api.manage_collection_item, request, 'options',
                         collection_id, skip_valid_check=True)
             else:  # GET: list items
-                return execute_from_flask(itemtypes_api.get_collection_items,
-                                        request, collection_id,
-                                        skip_valid_check=True)
+                return execute_from_flask(
+                    itemtypes_api.get_collection_items,
+                    request, collection_id,
+                    skip_valid_check=True)
 
         elif request.method == 'DELETE':
-            return execute_from_flask(itemtypes_api.manage_collection_item,
-                                    request, 'delete', collection_id, item_id,
-                                    skip_valid_check=True)
+            return execute_from_flask(
+                itemtypes_api.manage_collection_item,
+                request, 'delete', collection_id, item_id,
+                skip_valid_check=True)
         elif request.method == 'PUT':
-            return execute_from_flask(itemtypes_api.manage_collection_item,
-                                    request, 'update', collection_id, item_id,
-                                    skip_valid_check=True)
+            return execute_from_flask(
+                itemtypes_api.manage_collection_item,
+                request, 'update', collection_id, item_id,
+                skip_valid_check=True)
         elif request.method == 'OPTIONS':
-            return execute_from_flask(itemtypes_api.manage_collection_item,
-                                    request, 'options', collection_id, item_id,
-                                    skip_valid_check=True)
+            return execute_from_flask(
+                itemtypes_api.manage_collection_item,
+                request, 'options', collection_id, item_id,
+                skip_valid_check=True)
         else:
-            return execute_from_flask(itemtypes_api.get_collection_item, request, collection_id, item_id)
+            return execute_from_flask(
+                itemtypes_api.get_collection_item, request, collection_id, item_id)
 
     # moving feature collection
     else:
         if item_id is None:
-            if request.method == 'GET': # list items
+            if request.method == 'GET':  # list items
                 return execute_from_flask(
                     movingfeatures.get_collection_items, request, collection_id)
-            elif request.method == 'POST': # filter or manage items
+            elif request.method == 'POST':  # filter or manage items
                 return execute_from_flask(
                     movingfeatures.manage_collection_item, request, 'create', collection_id)
             else:

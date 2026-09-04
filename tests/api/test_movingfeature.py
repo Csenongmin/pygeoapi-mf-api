@@ -27,9 +27,9 @@ from pygeoapi.api import API
 
 @pytest.fixture()
 def api_():
-    with open(get_test_file_path('../pygeoapi-test-config-mfapi.yml')) as fh:
+    with open(get_test_file_path('pygeoapi-test-config-mfapi.yml')) as fh:
         config = yaml_load(fh)
-    with open(get_test_file_path('../pygeoapi-test-openapi-mfapi.yml')) as fh:
+    with open(get_test_file_path('pygeoapi-test-openapi-mfapi.yml')) as fh:
         openapi = yaml_load(fh)
     return API(config, openapi)
 

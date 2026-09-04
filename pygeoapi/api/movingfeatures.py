@@ -63,8 +63,8 @@ LOGGER = logging.getLogger(__name__)
 
 CONFORMANCE_CLASSES_MOVINGFEATURES = [
     "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/common",
-    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/mf-collection",  
-    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/movingfeatures"  
+    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/mf-collection",
+    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/movingfeatures"
 ]
 
 
@@ -2268,7 +2268,7 @@ def check_required_field_trs(trs):
     return True
 
 # fmt: off
-def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, dict]]:  
+def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, dict]]:
     """
     Get OpenAPI fragments
 
@@ -2297,7 +2297,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "delete": {
             "operationId": "deleteCollection",
             "summary": "Delete the collection",
-            "description": "The collection catalog with id `collectionId` and including metadata and moving features SHOULD be deleted.\n",  
+            "description": "The collection catalog with id `collectionId` and including metadata and moving features SHOULD be deleted.\n",
             "tags": ["MovingFeatureCollection"],
             "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
             "responses": {
@@ -2309,7 +2309,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "put": {
             "operationId": "replaceMetadata",
             "summary": "Replace metadata about the collection",
-            "description": "A user SHOULD replace metadata with id `collectionId`.\n\nThe request body schema is the same the POST's one. \n\nHowever, `updateFrequency` property is NOT updated.\n",  
+            "description": "A user SHOULD replace metadata with id `collectionId`.\n\nThe request body schema is the same the POST's one. \n\nHowever, `updateFrequency` property is NOT updated.\n",
             "tags": ["MovingFeatureCollection"],
             "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
             "requestBody": {
@@ -2332,7 +2332,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "get": {
             "operationId": "retrieveMovingFeatures",
             "summary": "Retrieve moving feature collection",
-            "description": "A user can retrieve moving feature collection to access the static information of the moving feature by simple filtering and a limit.\n\nSpecifically, if the `subTrajectory` parameter is \"true\", it will return the temporal geometry within the time interval specified by `datetime` parameter.\n",  
+            "description": "A user can retrieve moving feature collection to access the static information of the moving feature by simple filtering and a limit.\n\nSpecifically, if the `subTrajectory` parameter is \"true\", it will return the temporal geometry within the time interval specified by `datetime` parameter.\n",
             "tags": ["MovingFeatures"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2350,7 +2350,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "post": {
             "operationId": "insertMovingFeatures",
             "summary": "Insert moving features",
-            "description": "A user SHOULD insert a set of moving features or a moving feature into a collection with id `collectionId`.\n\nThe request body schema SHALL follows the [MovingFeature object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeature) or \n[MovingFeatureCollection object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeaturecollection) in the OGC MF-JSON.\n",  
+            "description": "A user SHOULD insert a set of moving features or a moving feature into a collection with id `collectionId`.\n\nThe request body schema SHALL follows the [MovingFeature object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeature) or \n[MovingFeatureCollection object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeaturecollection) in the OGC MF-JSON.\n",
             "tags": ["MovingFeatures"],
             "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
             "requestBody": {
@@ -2427,10 +2427,10 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful create a set of moving features or a moving feature into a specific collection.\n",  
+                    "description": "Successful create a set of moving features or a moving feature into a specific collection.\n",
                     "headers": {
                         "Locations": {
-                            "description": "A list of URI of the newly added resources",  
+                            "description": "A list of URI of the newly added resources",
                             "schema": {"type": "array","items": {"type": "string"}}
                         }
                     }
@@ -2442,12 +2442,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_path = '/collections/{collectionId}/items/{mFeatureId}'  
+    collections_collectionId_items_mFeatureId_path = '/collections/{collectionId}/items/{mFeatureId}'
     paths[collections_collectionId_items_mFeatureId_path] = {
         "get": {
             "operationId": "accessMovingFeature",
             "summary": "Access the static data of the moving feature",
-            "description": "A user can access a static data of a moving feature with id `mFeatureId`.\n\nThe static data of a moving feature is not included temporal geometries and temporal properties.\n",  
+            "description": "A user can access a static data of a moving feature with id `mFeatureId`.\n\nThe static data of a moving feature is not included temporal geometries and temporal properties.\n",
             "tags": ["MovingFeatures"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2462,7 +2462,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "delete": {
             "operationId": "deleteMovingFeature",
             "summary": "Delete a single moving feature",
-            "description": "The moving feature with id `mFeatureId` and including temporal geometries and properties SHOULD be deleted.\n",  
+            "description": "The moving feature with id `mFeatureId` and including temporal geometries and properties SHOULD be deleted.\n",
             "tags": ["MovingFeatures"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2475,12 +2475,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             }
         }
     }
-    collections_collectionId_items_mFeatureId_tgsequence_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence'  
+    collections_collectionId_items_mFeatureId_tgsequence_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence'
     paths[collections_collectionId_items_mFeatureId_tgsequence_path] = {
         "get": {
             "operationId": "retrieveTemporalGeometrySequence",
-            "summary": "Retrieve the movement data of the single moving feature",  
-            "description": "A user can retrieve only the movement data of a moving feature with id `mFeatureId` by simple filtering and a limit.\n",  
+            "summary": "Retrieve the movement data of the single moving feature",
+            "description": "A user can retrieve only the movement data of a moving feature with id `mFeatureId` by simple filtering and a limit.\n",
             "tags": ["TemporalGeometry"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2499,7 +2499,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "post": {
             "operationId": "insertTemporalPrimitiveGeometry",
             "summary": "Add movement data into the moving feature",
-            "description": "A user SHOULD add more movement data into a moving feature with id `mFeatureId`.\n\nThe request body schema SHALL follows the [TemporalPrimitiveGeometry object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tprimitive) in the OGC MF-JSON.\n",  
+            "description": "A user SHOULD add more movement data into a moving feature with id `mFeatureId`.\n\nThe request body schema SHALL follows the [TemporalPrimitiveGeometry object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tprimitive) in the OGC MF-JSON.\n",
             "tags": ["TemporalGeometry"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2531,10 +2531,10 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful add more movement data into a specified moving feature.\n",  
+                    "description": "Successful add more movement data into a specified moving feature.\n",
                     "headers": {
                         "Location": {
-                            "description": "A URI of the newly added resource",  
+                            "description": "A URI of the newly added resource",
                             "schema": {"type": "string"}
                         }
                     }
@@ -2546,12 +2546,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}'  
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path] = {  
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}'
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path] = {
         "delete": {
             "operationId": "deleteTemporalPrimitiveGeometry",
             "summary": "Delete a singe temporal primitive geometry",
-            "description": "The temporal primitive geometry with id `tGeometryId` SHOULD be deleted.\n",  
+            "description": "The temporal primitive geometry with id `tGeometryId` SHOULD be deleted.\n",
             "tags": ["TemporalGeometry"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2566,12 +2566,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/distance'  
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path] = {  
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/distance'
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path] = {
         "get": {
             "operationId": "getDistanceOfTemporalPrimitiveGeometry",
-            "summary": "Get a time-to-distance curve of a temporal primitive geometry",  
-            "description": "A user can get time-to-distance curve of a temporal primitive geometry with id `tGeometryId`.\n",  
+            "summary": "Get a time-to-distance curve of a temporal primitive geometry",
+            "description": "A user can get time-to-distance curve of a temporal primitive geometry with id `tGeometryId`.\n",
             "tags": ["TemporalGeometryQuery"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2589,12 +2589,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/velocity'  
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path] = {  
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/velocity'
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path] = {
         "get": {
             "operationId": "getVelocityOfTemporalPrimitiveGeometry",
-            "summary": "Get a time-to-velocity curve of a temporal primitive geometry",  
-            "description": "A user can get time-to-velocity curve of a temporal primitive geometry with id `tGeometryId`.\n",  
+            "summary": "Get a time-to-velocity curve of a temporal primitive geometry",
+            "description": "A user can get time-to-velocity curve of a temporal primitive geometry with id `tGeometryId`.\n",
             "tags": ["TemporalGeometryQuery"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2612,12 +2612,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/acceleration'  
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path] = {  
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/acceleration'
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path] = {
         "get": {
             "operationId": "getAccelerationOfTemporalPrimitiveGeometry",
-            "summary": "Get a time-to-acceleration curve of a temporal primitive geometry",  
-            "description": "A user can get time-to-acceleration curve of a temporal primitive geometry with id `tGeometryId`.\n",  
+            "summary": "Get a time-to-acceleration curve of a temporal primitive geometry",
+            "description": "A user can get time-to-acceleration curve of a temporal primitive geometry with id `tGeometryId`.\n",
             "tags": ["TemporalGeometryQuery"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2635,12 +2635,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tproperties_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties'  
-    paths[collections_collectionId_items_mFeatureId_tproperties_path] = {  
+    collections_collectionId_items_mFeatureId_tproperties_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties'
+    paths[collections_collectionId_items_mFeatureId_tproperties_path] = {
         "get": {
             "operationId": "retrieveTemporalProperties",
             "summary": "Retrieve a set of the temporal property data",
-            "description": "A user can retrieve the static information of the temporal property data that included a single moving feature with id `mFeatureId`.\n\nThe static data of a temporal property is not included temporal values (property `valueSequence`).\n\nAlso a user can retrieve the sub sequence of the temporal information of the temporal property data for the specified time interval with `subTemporalValue` query parameter. \nIn this case, `temporalProperties` property schema SHALL follows the [TemporalProperties object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",  
+            "description": "A user can retrieve the static information of the temporal property data that included a single moving feature with id `mFeatureId`.\n\nThe static data of a temporal property is not included temporal values (property `valueSequence`).\n\nAlso a user can retrieve the sub sequence of the temporal information of the temporal property data for the specified time interval with `subTemporalValue` query parameter. \nIn this case, `temporalProperties` property schema SHALL follows the [TemporalProperties object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",
             "tags": ["TemporalProperty"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2658,7 +2658,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "post": {
             "operationId": "insertTemporalProperty",
             "summary": "Add temporal property data",
-            "description": "A user SHOULD add new temporal property data into a moving feature with id `mFeatureId`.\n\nThe request body schema SHALL follows the [TemporalProperties object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",  
+            "description": "A user SHOULD add new temporal property data into a moving feature with id `mFeatureId`.\n\nThe request body schema SHALL follows the [TemporalProperties object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",
             "tags": ["TemporalProperty"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2678,10 +2678,10 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful add more temporal property into a specified moving feature.\n",  
+                    "description": "Successful add more temporal property into a specified moving feature.\n",
                     "headers": {
                         "Locations": {
-                            "description": "A list of URI of the newly added resources",  
+                            "description": "A list of URI of the newly added resources",
                             "schema": {"type": "array","items": {"type": "string"}
                             }
                         }
@@ -2693,12 +2693,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}'  
-    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path] = {  
+    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}'
+    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path] = {
         "get": {
             "operationId": "retrieveTemporalProperty",
             "summary": "Retrieve a temporal property",
-            "description": "A user can retrieve only the temporal values with a specified name `tPropertyName` of temporal property.\n",  
+            "description": "A user can retrieve only the temporal values with a specified name `tPropertyName` of temporal property.\n",
             "tags": ["TemporalProperty"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2717,7 +2717,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "post": {
             "operationId": "insertTemporalPrimitiveValue",
             "summary": "Add temporal primitive value data",
-            "description": "A user SHOULD add more temporal primitive value data into a temporal property with id `tPropertyName`.\n",  
+            "description": "A user SHOULD add more temporal primitive value data into a temporal property with id `tPropertyName`.\n",
             "tags": ["TemporalProperty"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2738,7 +2738,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful add more temporal primitive value data into a specified temporal property.\n",  
+                    "description": "Successful add more temporal primitive value data into a specified temporal property.\n",
                     "headers": {
                         "Location": {
                             "description": "A URI of the newly added resource",
@@ -2753,7 +2753,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "delete": {
             "operationId": "deleteTemporalProperty",
             "summary": "Delete a specified temporal property",
-            "description": "The temporal property with id `tPropertyName` SHOULD be deleted.\n",  
+            "description": "The temporal property with id `tPropertyName` SHOULD be deleted.\n",
             "tags": ["TemporalProperty"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
@@ -2768,12 +2768,12 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         }
     }
 
-    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}/{tValueId}'  
-    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path] = {  
+    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}/{tValueId}'
+    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path] = {
         "delete": {
             "operationId": "deleteTemporalPrimitiveValue",
             "summary": "Delete a singe temporal primitive value",
-            "description": "The temporal primitive value with id `tValueId` SHOULD be deleted.\n",  
+            "description": "The temporal primitive value with id `tValueId` SHOULD be deleted.\n",
             "tags": ["TemporalProperty"],
             "parameters": [
                 {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},

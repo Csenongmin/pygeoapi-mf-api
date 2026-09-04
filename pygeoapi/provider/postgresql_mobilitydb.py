@@ -9,6 +9,7 @@ from pygeoapi.util import format_datetime
 from pymeos_cffi import (tfloat_from_mfjson, ttext_from_mfjson,
                          tgeompoint_from_mfjson)
 
+
 class PostgresMobilityDB:
     host = 'mobilitydb'
     port = 5432
@@ -1116,7 +1117,7 @@ class PostgresMobilityDB:
                     (not sub_temporal_value or sub_temporal_value == "false"):
                 # no optional query parameters are used -> time-to-velocity curve returns
                 select_query = \
-                    f"""SELECT speed(tgeog_property) AS speed 
+                    f"""SELECT speed(tgeog_property) AS speed
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1126,7 +1127,7 @@ class PostgresMobilityDB:
                 # only leaf query parameter is used
                 leaf_condition = "tstzset('{"+leaf+"}')"
                 select_query = \
-                    f"""SELECT atTime(speed(tgeog_property),{leaf_condition}) AS speed 
+                    f"""SELECT atTime(speed(tgeog_property),{leaf_condition}) AS speed
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1174,7 +1175,7 @@ class PostgresMobilityDB:
                     (not sub_temporal_value or sub_temporal_value == "false"):
                 # no optional query parameters are used -> time-to-velocity curve returns
                 select_query = \
-                    f"""SELECT cumulativeLength(tgeog_property) AS distance 
+                    f"""SELECT cumulativeLength(tgeog_property) AS distance
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1234,7 +1235,7 @@ class PostgresMobilityDB:
         with self.connection.cursor() as cur:
             select_query = \
                 f"""SELECT speed(tgeog_property) AS speed
-                    FROM tgeometry 
+                    FROM tgeometry
                     WHERE collection_id = '{collection_id}'
                     and mfeature_id = '{mfeature_id}'
                     and tgeometry_id = '{tgeometry_id}'"""
@@ -1304,7 +1305,6 @@ class PostgresMobilityDB:
             }
             tProperty["valueSequence"].append(value_sequence)
         return tProperty
-
 
     def calculate_acceleration(self, velocities, times, chk_dtime):
         """
