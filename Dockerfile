@@ -140,7 +140,7 @@ RUN python3 -m venv --system-site-packages /venv \
     && /venv/bin/python3 -m pip install "GDAL==$(gdal-config --version)" \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-docker.txt \
     && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-admin.txt \
-    && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-provider.txt \
+    && /venv/bin/python3 -m pip install --no-cache-dir -r requirements-dev.txt \
     && /venv/bin/python3 -m pip install --no-cache-dir "gunicorn<24" \
     && /venv/bin/python3 -m pip install --no-cache-dir -e .
 

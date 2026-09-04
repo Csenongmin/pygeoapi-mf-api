@@ -1,3 +1,4 @@
+numpy==2.0.1
 azure-identity
 azure-storage-blob
 cftime
@@ -8,7 +9,6 @@ GDAL<=3.11.3
 geoalchemy2
 geopandas
 netCDF4
-numpy==2.0.1
 opensearch-dsl
 opensearch-py
 oracledb
@@ -25,4 +25,3 @@ sodapy
 xarray
 zarr<3
 s3fs<=2023.6.0
-pymeos
