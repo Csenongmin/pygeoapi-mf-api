@@ -130,7 +130,7 @@ RUN apt-get update -y \
 ADD requirements-docker.txt requirements-admin.txt requirements-provider.txt /pygeoapi/
 # Install remaining pygeoapi deps
 RUN python3 -m pip install --no-cache-dir -r requirements-docker.txt \
-    && python3 -m pip install --no-cache-dir -r requirements-admin.txt
+    && python3 -m pip install --no-cache-dir -r requirements-admin.txt \
     && python3 -m pip install --no-cache-dir -r requirements-provider.txt
 
 ADD . /pygeoapi

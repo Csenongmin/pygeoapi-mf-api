@@ -40,12 +40,7 @@ Root level code of pygeoapi, parsing content provided by web framework.
 Returns content from plugins and sets responses.
 """
 
-from pygeoapi.util import (CrsTransformSpec, TEMPLATES, UrlPrefetcher,
-                           get_api_rules, get_base_url, get_provider_by_type,
-                           get_typed_value, get_crs_from_uri, dategetter,
-                           get_supported_crs_list, render_j2_template, to_json,
-                           get_provider_default, filter_dict_by_key_value)
-from pymeos import STBox, TsTzSpan, pymeos_initialize
+from pymeos import pymeos_initialize
 import psycopg2
 from pygeoapi.provider.postgresql_mobilitydb import PostgresMobilityDB
 import asyncio
