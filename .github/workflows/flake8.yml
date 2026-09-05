@@ -29,7 +29,3 @@ jobs:
           pygeoapi/openapi.py
           pygeoapi/provider/postgresql_mobilitydb.py
           --extend-ignore=E501
-        with:
-          checkName: 'flake8_py3'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
