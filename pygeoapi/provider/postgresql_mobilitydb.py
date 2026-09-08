@@ -1138,7 +1138,7 @@ class PostgresMobilityDB:
                     (sub_temporal_value or sub_temporal_value == "true"):
                 # only sub_temporal_value query parameter is used
                 select_query = \
-                    f"""SELECT atTime(speed(tgeog_property), 
+                    f"""SELECT atTime(speed(tgeog_property),
                                tstzspan('[{datetime}]')) AS speed
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
@@ -1199,7 +1199,7 @@ class PostgresMobilityDB:
                     (sub_temporal_value or sub_temporal_value == "true"):
                 # only sub_temporal_value query parameter is used
                 select_query = \
-                    f"""SELECT atTime(cumulativeLength(tgeog_property), 
+                    f"""SELECT atTime(cumulativeLength(tgeog_property),
                                tstzspan('[{datetime}]')) AS distance
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
