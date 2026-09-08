@@ -827,8 +827,10 @@ def test_get_collection_items(api_, context):
         35.627701,
         4]
     assert 'time' in mfeature
-    # assert mfeature['time'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
-    assert mfeature['time'] == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z']
+    # assert (mfeature['time']
+    #         == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"])
+    assert (mfeature['time']
+            == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z'])
     print("here")
     print(mfeature)
 
@@ -874,14 +876,14 @@ def test_get_collection(api_, context):
     assert collection['description'] == 'test_update'
 
     assert 'extent' in collection
-    assert collection['extent']['spatial']['bbox'] == [
-        139.757083, 35.627483, 0.5, 139.757716, 35.627701, 4]
-    assert collection['extent']['spatial']['crs'] == \
-        'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
-    # assert collection['extent']['temporal']['interval'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
-    assert collection['extent']['temporal']['interval'] ==   ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z']
-
-
+    assert (collection['extent']['spatial']['bbox'] ==
+            [139.757083, 35.627483, 0.5, 139.757716, 35.627701, 4])
+    assert (collection['extent']['spatial']['crs'] ==
+            'http://www.opengis.net/def/crs/OGC/1.3/CRS84')
+    # assert (collection['extent']['temporal']['interval']
+    #         == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"])
+    assert (collection['extent']['temporal']['interval']
+            == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z'])
     assert collection['extent']['temporal']['trs'] == \
         'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
 
@@ -927,15 +929,16 @@ def test_get_collection_item(api_, context):
         35.627701,
         4]
     assert 'time' in mfeature
-    # assert mfeature['time'] == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"]
-    assert mfeature['time'] == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z']
+    # assert (mfeature['time']
+    #         == ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"])
+    assert (mfeature['time']
+            == ['2011-07-15T07:01:01Z', '2011-07-15T10:11:22Z'])
 
     assert 'links' in mfeature
     assert len(mfeature['links']) == 1
 
 
 def test_get_collection_items_tGeometry(api_, context):
-
     # not found
     req = mock_api_request()
     rsp_headers, code, response = get_collection_items_tGeometry(
@@ -1067,7 +1070,6 @@ def test_get_collection_items_tGeometry(api_, context):
 
 
 def test_get_collection_items_tGeometry_velocity(api_, context):
-
     # successful data
     req = mock_api_request({
         'datetime': '2011-07-14T13:01:08Z',
@@ -1088,20 +1090,17 @@ def test_get_collection_items_tGeometry_velocity(api_, context):
     assert len(response['valueSequence']) == 1
 
     value_sequence = response['valueSequence'][0]
-
     assert value_sequence['datetimes'] == [
         '2011-07-14T13:01:08.000000Z'
     ]
-
     assert value_sequence['values'][0] == pytest.approx(
         0.00013296616111996862,
         rel=1e-9
     )
-
     assert value_sequence['interpolation'] == 'Discrete'
 
-def test_get_collection_items_tGeometry_distance(api_, context):
 
+def test_get_collection_items_tGeometry_distance(api_, context):
     # successful data
     req = mock_api_request({'datetime': '2011-07-14T13:01:08Z'})
     rsp_headers, code, response = get_collection_items_tGeometry_distance(

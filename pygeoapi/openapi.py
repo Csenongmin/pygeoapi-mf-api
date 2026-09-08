@@ -376,7 +376,9 @@ def get_oas_30(cfg: dict, fail_on_invalid_collection: bool = True) -> dict:
             "requestBody": {
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/collection-body"},
+                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                                           f"#/components/schemas/"
+                                           f"collection-body"},
                         "example": {
                             "title": "moving_feature_collection_sample",
                             "updateFrequency": 1000,
@@ -396,7 +398,8 @@ def get_oas_30(cfg: dict, fail_on_invalid_collection: bool = True) -> dict:
                         }
                     }
                 },
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                                f"#/components/responses/ServerError"}
             }
         }
     }

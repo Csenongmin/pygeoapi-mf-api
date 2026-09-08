@@ -63,8 +63,8 @@ LOGGER = logging.getLogger(__name__)
 
 CONFORMANCE_CLASSES_MOVINGFEATURES = [
     "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/common",
-    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/mf-collection",
-    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/movingfeatures"
+    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/mf-collection",# noqa
+    "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/movingfeatures"# noqa
 ]
 
 
@@ -2169,7 +2169,7 @@ def check_required_field_geometry_array(geometry):
         return False
 
     geometries = geometry['geometries']
-    geometries = [geometries] if not isinstance(geometries, list) else geometries
+    geometries = [geometries] if not isinstance(geometries, list) else geometries# noqa
     for l_geometry in geometries:
         if check_required_field_geometry_single(l_geometry) is False:
             return False
@@ -2185,8 +2185,8 @@ def check_required_field_geometry_single(geometry):
 
 
 def check_required_field_temporal_geometries(temporal_geometries):
-    if (check_required_field_temporal_geometry_array(temporal_geometries) is False
-            and check_required_field_temporal_geometry_single(temporal_geometries) is False):
+    if (check_required_field_temporal_geometry_array(temporal_geometries) is False# noqa
+            and check_required_field_temporal_geometry_single(temporal_geometries) is False):# noqa
         return False
     return True
 
@@ -2198,7 +2198,7 @@ def check_required_field_temporal_geometry_array(temporal_geometries):
     prisms = temporal_geometries['prisms']
     prisms = [prisms] if not isinstance(prisms, list) else prisms
     for temporal_geometry in prisms:
-        if check_required_field_temporal_geometry_single(temporal_geometry) is False:
+        if check_required_field_temporal_geometry_single(temporal_geometry) is False:# noqa
             return False
 
     if 'crs' in temporal_geometries:
@@ -2241,7 +2241,7 @@ def check_required_field_temporal_property(temporal_properties):
         for tproperties_name in temporal_property:
             if (tproperties_name != 'datetimes'
                     and ('values' not in temporal_property[tproperties_name]
-                         or 'interpolation' not in temporal_property[tproperties_name])):
+                         or 'interpolation' not in temporal_property[tproperties_name])):# noqa
                 return False
     return True
 
@@ -2269,7 +2269,7 @@ def check_required_field_trs(trs):
 
 
 # fmt: off
-def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, dict]]:
+def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, dict]]:# noqa
     """
     Get OpenAPI fragments
 
@@ -2286,44 +2286,46 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "get": {
             "operationId": "accessMetadata",
             "summary": "Access metadata about the collection",
-            "description": "A user can access metadata with id `collectionId`.\n",
+            "description": "A user can access metadata with id `collectionId`.",# noqa
             "tags": ["MovingFeatureCollection"],
-            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
+            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],# noqa
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/Collection"},
-                "404": {"description": "A collection with the specified id was not found."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/Collection"},# noqa
+                "404": {"description": "A collection with the specified id was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "delete": {
             "operationId": "deleteCollection",
             "summary": "Delete the collection",
-            "description": "The collection catalog with id `collectionId` and including metadata and moving features SHOULD be deleted.\n",
+            "description": "The collection catalog with id `collectionId` and including metadata and moving features SHOULD be deleted.",# noqa
             "tags": ["MovingFeatureCollection"],
-            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
+            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],# noqa
             "responses": {
                 "204": {"description": "Successfully deleted."},
-                "404": {"description": "A collection with the specified name was not found."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description": "A collection with the specified name was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "put": {
             "operationId": "replaceMetadata",
             "summary": "Replace metadata about the collection",
-            "description": "A user SHOULD replace metadata with id `collectionId`.\n\nThe request body schema is the same the POST's one. \n\nHowever, `updateFrequency` property is NOT updated.\n",
+            "description": "A user SHOULD replace metadata with id `collectionId`.\n"# noqa
+                           "The request body schema is the same the POST's one. \n"# noqa
+                           "However, `updateFrequency` property is NOT updated.",# noqa
             "tags": ["MovingFeatureCollection"],
-            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
+            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],# noqa
             "requestBody": {
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/collection-body"}
+                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/collection-body"}# noqa
                     }
                 }
             },
             "responses": {
                 "204": {"description": "Successfully replaced."},
-                "404": {"description": "A collection with the specified name was not found."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description": "A collection with the specified name was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
@@ -2333,73 +2335,75 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
         "get": {
             "operationId": "retrieveMovingFeatures",
             "summary": "Retrieve moving feature collection",
-            "description": "A user can retrieve moving feature collection to access the static information of the moving feature by simple filtering and a limit.\n\n\
-                Specifically, if the `subTrajectory` parameter is \"true\", it will return the temporal geometry within the time interval specified by `datetime` parameter.\n",
+            "description": "A user can retrieve moving feature collection to access the static information of the moving feature by simple filtering and a limit.\n"# noqa
+                           "Specifically, if the `subTrajectory` parameter is \"true\", it will return the temporal geometry within the time interval specified by `datetime` parameter.\n",# noqa
             "tags": ["MovingFeatures"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/bbox"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/limit"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtrajectory"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/bbox"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/limit"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtrajectory"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/MovingFeatures"},
-                "404": {"description": "A collection with the specified id was not found."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/MovingFeatures"},# noqa
+                "404": {"description": "A collection with the specified id was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "post": {
             "operationId": "insertMovingFeatures",
             "summary": "Insert moving features",
-            "description": "A user SHOULD insert a set of moving features or a moving feature into a collection with id `collectionId`.\n\nThe request body schema SHALL follows the [MovingFeature object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeature) or \n[MovingFeatureCollection object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeaturecollection) in the OGC MF-JSON.\n",
+            "description": "A user SHOULD insert a set of moving features or a moving feature into a collection with id `collectionId`.\n"# noqa
+                           "The request body schema SHALL follows the [MovingFeature object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeature) or \n"# noqa
+                           "[MovingFeatureCollection object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#mfeaturecollection) in the OGC MF-JSON.\n",# noqa
             "tags": ["MovingFeatures"],
-            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],
+            "parameters": [{"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}],# noqa
             "requestBody": {
                 "content": {
                     "application/json": {
                         "schema": {
                             "oneOf": [
-                                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/movingFeature-mfjson"},
-                                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/movingFeatureCollection"}
+                                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/movingFeature-mfjson"},# noqa
+                                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/movingFeatureCollection"}# noqa
                             ]
                         },
                         "example": {
                             "type": "Feature",
                             "crs": {
                                 "type": "Name",
-                                "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}
+                                "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}# noqa
                             },
                             "trs": {
                                 "type": "Link",
                                 "properties": {
                                     "type": "OGCDEF",
-                                    "href": "http://www.opengis.net/def/uom/ISO-8601/0/Gregorian",
+                                    "href": "http://www.opengis.net/def/uom/ISO-8601/0/Gregorian",# noqa
                                 }
                             },
                             "temporalGeometry": {
                                 "type": "MovingPoint",
-                                "datetimes": ["2011-07-14T22:01:01Z", "2011-07-14T22:01:02Z", "2011-07-14T22:01:03Z", "2011-07-14T22:01:04Z", "2011-07-14T22:01:05Z"],
-                                "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]],
+                                "datetimes": ["2011-07-14T22:01:01Z", "2011-07-14T22:01:02Z", "2011-07-14T22:01:03Z", "2011-07-14T22:01:04Z", "2011-07-14T22:01:05Z"],# noqa
+                                "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]],# noqa
                                 "interpolation": "Linear",
                                 "base": {
                                     "type": "glTF",
-                                    "href": "http://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/car3dmodel.gltf"
+                                    "href": "http://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/car3dmodel.gltf"# noqa
                                 },
                                 "orientations": [
-                                    {"scales": [1, 1, 1], "angles": [0, 0, 0]},
-                                    {"scales": [1, 1, 1], "angles": [0, 355, 0]},
-                                    {"scales": [1, 1, 1], "angles": [0, 0, 330]},
-                                    {"scales": [1, 1, 1], "angles": [0, 0, 300]},
-                                    {"scales": [1, 1, 1], "angles": [0, 0, 270]}
+                                    {"scales": [1, 1, 1], "angles": [0, 0, 0]},# noqa
+                                    {"scales": [1, 1, 1], "angles": [0, 355, 0]},# noqa
+                                    {"scales": [1, 1, 1], "angles": [0, 0, 330]},# noqa
+                                    {"scales": [1, 1, 1], "angles": [0, 0, 300]},# noqa
+                                    {"scales": [1, 1, 1], "angles": [0, 0, 270]}# noqa
                                 ]
                             },
                             "temporalProperties": [
                                 {
-                                    "datetimes": ["2011-07-14T22:01:01.450Z", "2011-07-14T23:01:01.450Z", "2011-07-15T00:01:01.450Z"],
+                                    "datetimes": ["2011-07-14T22:01:01.450Z", "2011-07-14T23:01:01.450Z", "2011-07-15T00:01:01.450Z"],# noqa
                                     "length": {
                                         "type": "Measure",
-                                        "form": "http://qudt.org/vocab/quantitykind/Length",
+                                        "form": "http://qudt.org/vocab/quantitykind/Length",# noqa
                                         "values": [1.0, 2.4, 1.0],
                                         "interpolation": "Linear",
                                     },
@@ -2413,15 +2417,15 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                             ],
                             "geometry": {
                                 "type": "LineString",
-                                "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]]
+                                "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]]# noqa
                             },
                             "properties": {
                                 "name": "car1",
                                 "state": "test1",
-                                "video": "http://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/video.mpeg",
+                                "video": "http://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/video.mpeg",# noqa
                             },
-                            "bbox": [139.757083, 35.627483, 0.0, 139.757716, 35.627701, 4.5],
-                            "time": ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"],
+                            "bbox": [139.757083, 35.627483, 0.0, 139.757716, 35.627701, 4.5],# noqa
+                            "time": ["2011-07-14T22:01:01Z", "2011-07-15T01:11:22Z"],# noqa
                             "id": "mf-1"
                         }
                     }
@@ -2429,96 +2433,102 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful create a set of moving features or a moving feature into a specific collection.\n",
+                    "description": "Successful create a set of moving features or a moving feature into a specific collection.",# noqa
                     "headers": {
                         "Locations": {
-                            "description": "A list of URI of the newly added resources",
-                            "schema": {"type": "array", "items": {"type": "string"}}
+                            "description": "A list of URI of the newly added resources",# noqa
+                            "schema": {"type": "array", "items": {"type": "string"}}# noqa
                         }
                     }
                 },
-                "400": {"description": "A query parameter was not validly used."},
-                "404": {"description": "A collection with the specified id was not found."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "404": {"description": "A collection with the specified id was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_path = '/collections/{collectionId}/items/{mFeatureId}'
+    collections_collectionId_items_mFeatureId_path = '/collections/{collectionId}/items/{mFeatureId}'# noqa
     paths[collections_collectionId_items_mFeatureId_path] = {
         "get": {
             "operationId": "accessMovingFeature",
             "summary": "Access the static data of the moving feature",
-            "description": "A user can access a static data of a moving feature with id `mFeatureId`.\n\nThe static data of a moving feature is not included temporal geometries and temporal properties.\n",
+            "description": "A user can access a static data of a moving feature with id `mFeatureId`.\n"# noqa
+                           "The static data of a moving feature is not included temporal geometries and temporal properties.",# noqa
             "tags": ["MovingFeatures"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/MovingFeature"},
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/MovingFeature"},# noqa
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "delete": {
             "operationId": "deleteMovingFeature",
             "summary": "Delete a single moving feature",
-            "description": "The moving feature with id `mFeatureId` and including temporal geometries and properties SHOULD be deleted.\n",
+            "description": "The moving feature with id `mFeatureId` and including temporal geometries and properties SHOULD be deleted.",# noqa
             "tags": ["MovingFeatures"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}# noqa
             ],
             "responses": {
                 "204": {"description": "Successfully deleted."},
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found.\n"},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
-    collections_collectionId_items_mFeatureId_tgsequence_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence'
+    collections_collectionId_items_mFeatureId_tgsequence_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence'# noqa
     paths[collections_collectionId_items_mFeatureId_tgsequence_path] = {
         "get": {
             "operationId": "retrieveTemporalGeometrySequence",
-            "summary": "Retrieve the movement data of the single moving feature",
-            "description": "A user can retrieve only the movement data of a moving feature with id `mFeatureId` by simple filtering and a limit.\n",
+            "summary": "Retrieve the movement data of the single moving feature",# noqa
+            "description": "A user can retrieve only the movement data of a moving feature with id `mFeatureId` by simple filtering and a limit.\n",# noqa
             "tags": ["TemporalGeometry"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/bbox"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/limit"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtrajectory"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/bbox"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/limit"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtrajectory"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/TemporalGeometrySequence"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/TemporalGeometrySequence"},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "post": {
             "operationId": "insertTemporalPrimitiveGeometry",
             "summary": "Add movement data into the moving feature",
-            "description": "A user SHOULD add more movement data into a moving feature with id `mFeatureId`.\n\nThe request body schema SHALL follows the [TemporalPrimitiveGeometry object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tprimitive) in the OGC MF-JSON.\n",
+            "description": "A user SHOULD add more movement data into a moving feature with id `mFeatureId`.\n"# noqa
+                           "The request body schema SHALL follows the [TemporalPrimitiveGeometry object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tprimitive) in the OGC MF-JSON.\n",# noqa
             "tags": ["TemporalGeometry"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}# noqa
             ],
             "requestBody": {
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalPrimitiveGeometry"},
+                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalPrimitiveGeometry"},# noqa
                         "example": {
                             "type": "MovingPoint",
-                            "datetimes": ["2011-07-14T22:01:06Z", "2011-07-14T22:01:07Z", "2011-07-14T22:01:08Z", "2011-07-14T22:01:09Z", "2011-07-14T22:01:10Z"],
-                            "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]],
+                            "datetimes": ["2011-07-14T22:01:06Z", "2011-07-14T22:01:07Z", "2011-07-14T22:01:08Z", "2011-07-14T22:01:09Z", "2011-07-14T22:01:10Z"],# noqa
+                            "coordinates": [[139.757083, 35.627701, 0.5], [139.757399, 35.627701, 2.0], [139.757555, 35.627688, 4.0], [139.757651, 35.627596, 4.0], [139.757716, 35.627483, 4.0]],# noqa
                             "interpolation": "Linear",
                             "base": {
                                 "type": "glTF",
-                                "href": "https://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/car3dmodel.gltf"
+                                "href": "https://www.opengis.net/spec/movingfeatures/json/1.0/prism/example/car3dmodel.gltf"# noqa
                             },
                             "orientations": [
                                 {"scales": [1, 1, 1], "angles": [0, 0, 0]},
@@ -2533,7 +2543,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful add more movement data into a specified moving feature.\n",
+                    "description": "Successful add more movement data into a specified moving feature.\n",# noqa
                     "headers": {
                         "Location": {
                             "description": "A URI of the newly added resource",
@@ -2541,196 +2551,218 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                         }
                     }
                 },
-                "400": {"description": "A query parameter was not validly used."},
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}'
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path] = {
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}'# noqa
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_path] = {# noqa
         "delete": {
             "operationId": "deleteTemporalPrimitiveGeometry",
             "summary": "Delete a singe temporal primitive geometry",
-            "description": "The temporal primitive geometry with id `tGeometryId` SHOULD be deleted.\n",
+            "description": "The temporal primitive geometry with id `tGeometryId` SHOULD be deleted.\n",# noqa
             "tags": ["TemporalGeometry"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"}# noqa
             ],
             "responses": {
                 "204": {"description": "Successfully deleted."},
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n- Or a temporal primitive geometry with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found.\n"# noqa
+                            "- Or a temporal primitive geometry with the specified id was not found."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/distance'
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path] = {
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/distance'# noqa
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_distance_path] = {# noqa
         "get": {
             "operationId": "getDistanceOfTemporalPrimitiveGeometry",
-            "summary": "Get a time-to-distance curve of a temporal primitive geometry",
-            "description": "A user can get time-to-distance curve of a temporal primitive geometry with id `tGeometryId`.\n",
+            "summary": "Get a time-to-distance curve of a temporal primitive geometry",# noqa
+            "description": "A user can get time-to-distance curve of a temporal primitive geometry with id `tGeometryId`.",# noqa
             "tags": ["TemporalGeometryQuery"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/DistanceQuery"},
-                "400": {"description": "A query parameter was not validly used."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/DistanceQuery"},# noqa
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/velocity'
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path] = {
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/velocity'# noqa
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_velocity_path] = {# noqa
         "get": {
             "operationId": "getVelocityOfTemporalPrimitiveGeometry",
-            "summary": "Get a time-to-velocity curve of a temporal primitive geometry",
-            "description": "A user can get time-to-velocity curve of a temporal primitive geometry with id `tGeometryId`.\n",
+            "summary": "Get a time-to-velocity curve of a temporal primitive geometry",# noqa
+            "description": "A user can get time-to-velocity curve of a temporal primitive geometry with id `tGeometryId`.",# noqa
             "tags": ["TemporalGeometryQuery"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/VelocityQuery"},
-                "400": {"description": "A query parameter was not validly used."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/VelocityQuery"},# noqa
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/acceleration'
-    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path] = {
+    collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path = '/collections/{collectionId}/items/{mFeatureId}/tgsequence/{tGeometryId}/acceleration'# noqa
+    paths[collections_collectionId_items_mFeatureId_tgsequence_tGeometryId_acceleration_path] = {# noqa
         "get": {
             "operationId": "getAccelerationOfTemporalPrimitiveGeometry",
-            "summary": "Get a time-to-acceleration curve of a temporal primitive geometry",
-            "description": "A user can get time-to-acceleration curve of a temporal primitive geometry with id `tGeometryId`.\n",
+            "summary": "Get a time-to-acceleration curve of a temporal primitive geometry",# noqa
+            "description": "A user can get time-to-acceleration curve of a temporal primitive geometry with id `tGeometryId`.",# noqa
             "tags": ["TemporalGeometryQuery"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tGeometryId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/AccelerationQuery"},
-                "400": {"description": "A query parameter was not validly used."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/AccelerationQuery"},# noqa
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tproperties_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties'
+    collections_collectionId_items_mFeatureId_tproperties_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties'# noqa
     paths[collections_collectionId_items_mFeatureId_tproperties_path] = {
         "get": {
             "operationId": "retrieveTemporalProperties",
             "summary": "Retrieve a set of the temporal property data",
-            "description": "A user can retrieve the static information of the temporal property data that included a single moving feature with id `mFeatureId`.\n\nThe static data of a temporal property is not included temporal values (property `valueSequence`).\n\nAlso a user can retrieve the sub sequence of the temporal information of the temporal property data for the specified time interval with `subTemporalValue` query parameter. \nIn this case, `temporalProperties` property schema SHALL follows the [TemporalProperties object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",
+            "description": "A user can retrieve the static information of the temporal property data that included a single moving feature with id `mFeatureId`.\n"# noqa
+                           "The static data of a temporal property is not included temporal values (property `valueSequence`).\n"# noqa
+                           "Also a user can retrieve the sub sequence of the temporal information of the temporal property data for the specified time interval with `subTemporalValue` query parameter. \n"# noqa
+                           "In this case, `temporalProperties` property schema SHALL follows the [TemporalProperties object](https://docs.ogc.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",# noqa
             "tags": ["TemporalProperty"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/limit"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/limit"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/TemporalProperties"},
-                "400": {"description": "A query parameter was not validly used."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/TemporalProperties"},# noqa
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "post": {
             "operationId": "insertTemporalProperty",
             "summary": "Add temporal property data",
-            "description": "A user SHOULD add new temporal property data into a moving feature with id `mFeatureId`.\n\nThe request body schema SHALL follows the [TemporalProperties object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",
+            "description": "A user SHOULD add new temporal property data into a moving feature with id `mFeatureId`.\n"# noqa
+                           "The request body schema SHALL follows the [TemporalProperties object](https://docs.opengeospatial.org/is/19-045r3/19-045r3.html#tproperties) in the OGC MF-JSON.\n",# noqa
             "tags": ["TemporalProperty"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}# noqa
             ],
             "requestBody": {
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalProperties-mfjson"},
+                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalProperties-mfjson"},# noqa
                         "example": [
-                            {"datetimes": ["2011-07-14T22:01:01.450Z", "2011-07-14T23:01:01.450Z", "2011-07-15T00:01:01.450Z"],
-                             "length": {"type": "Measure", "form": "http://qudt.org/vocab/quantitykind/Length", "values": [1, 2.4, 1], "interpolation": "Linear"},
-                             "discharge": {"type": "Measure", "form": "MQS", "values": [3, 4, 5], "interpolation": "Step"}}
+                            {"datetimes": ["2011-07-14T22:01:01.450Z",
+                                           "2011-07-14T23:01:01.450Z",
+                                           "2011-07-15T00:01:01.450Z"],
+                             "length": {"type": "Measure",
+                                        "form": "http://qudt.org/vocab/quantitykind/Length",# noqa
+                                        "values": [1, 2.4, 1],
+                                        "interpolation": "Linear"},
+                             "discharge": {"type": "Measure",
+                                           "form": "MQS",
+                                           "values": [3, 4, 5],
+                                           "interpolation": "Step"}}
                         ]
                     }
                 }
             },
             "responses": {
                 "201": {
-                    "description": "Successful add more temporal property into a specified moving feature.\n",
+                    "description": "Successful add more temporal property into a specified moving feature.\n",# noqa
                     "headers": {
                         "Locations": {
-                            "description": "A list of URI of the newly added resources",
-                            "schema": {"type": "array", "items": {"type": "string"}}
+                            "description": "A list of URI of the newly added resources",# noqa
+                            "schema": {"type": "array",
+                                       "items": {"type": "string"}}
                         }
                     }
                 },
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found.\n"},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}'
-    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path] = {
+    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}'# noqa
+    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_path] = {# noqa
         "get": {
             "operationId": "retrieveTemporalProperty",
             "summary": "Retrieve a temporal property",
-            "description": "A user can retrieve only the temporal values with a specified name `tPropertyName` of temporal property.\n",
+            "description": "A user can retrieve only the temporal values with a specified name `tPropertyName` of temporal property.\n",# noqa
             "tags": ["TemporalProperty"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/datetime"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/leaf"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/subtemporalvalue"}# noqa
             ],
             "responses": {
-                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/TemporalProperty"},
-                "400": {"description": "A query parameter was not validly used."},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "200": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/TemporalProperty"},# noqa
+                "400": {"description": "A query parameter was not validly used."},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}# noqa
             }
         },
         "post": {
             "operationId": "insertTemporalPrimitiveValue",
             "summary": "Add temporal primitive value data",
-            "description": "A user SHOULD add more temporal primitive value data into a temporal property with id `tPropertyName`.\n",
+            "description": "A user SHOULD add more temporal primitive value data into a temporal property with id `tPropertyName`.\n",# noqa
             "tags": ["TemporalProperty"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},# noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"}# noqa
             ],
             "requestBody": {
                 "content": {
                     "application/json": {
-                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalPrimitiveValue"},
+                        "schema": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/schemas/temporalPrimitiveValue"},# noqa
                         "example": {
-                            "datetimes": ["2011-07-15T08:00:00Z", "2011-07-15T08:00:01Z", "2011-07-15T08:00:02Z"],
+                            "datetimes": ["2011-07-15T08:00:00Z",
+                                          "2011-07-15T08:00:01Z",
+                                          "2011-07-15T08:00:02Z"],
                             "values": [0, 20, 50],
                             "interpolation": "Linear"
                         }
@@ -2739,7 +2771,7 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
             },
             "responses": {
                 "201": {
-                    "description": "Successful add more temporal primitive value data into a specified temporal property.\n",
+                    "description": "Successful add more temporal primitive value data into a specified temporal property.\n",# noqa
                     "headers": {
                         "Location": {
                             "description": "A URI of the newly added resource",
@@ -2747,45 +2779,60 @@ def get_oas_30(cfg: dict, locale: str) -> tuple[list[dict[str, str]], dict[str, 
                         }
                     }
                 },
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n- Or a temporal property with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found.\n"# noqa
+                            "- Or a temporal property with the specified id was not found.\n"},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                                f"#/components/responses/ServerError"}
             }
         },
         "delete": {
             "operationId": "deleteTemporalProperty",
             "summary": "Delete a specified temporal property",
-            "description": "The temporal property with id `tPropertyName` SHOULD be deleted.\n",
+            "description": "The temporal property with id `tPropertyName` SHOULD be deleted.\n",# noqa
             "tags": ["TemporalProperty"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                         f"#/components/parameters/collectionId"},
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                         f"#/components/parameters/mFeatureId"},
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                         f"#/components/parameters/tPropertyName"}
             ],
             "responses": {
                 "204": {"description": "Successfully deleted."},
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n- Or a temporal property with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n"# noqa
+                            "- Or a moving feature with the specified id was not found.\n"# noqa
+                            "- Or a temporal property with the specified id was not found.\n"},# noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}"
+                                f"#/components/responses/ServerError"}
             }
         }
     }
 
-    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}/{tValueId}'
-    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path] = {
+    collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path = '/collections/{collectionId}/items/{mFeatureId}/tproperties/{tPropertyName}/{tValueId}' # noqa
+    paths[collections_collectionId_items_mFeatureId_tproperties_tPropertyName_tValueId_path] = { # noqa
         "delete": {
             "operationId": "deleteTemporalPrimitiveValue",
             "summary": "Delete a singe temporal primitive value",
-            "description": "The temporal primitive value with id `tValueId` SHOULD be deleted.\n",
+            "description": "The temporal primitive value with id `tValueId` SHOULD be deleted.", # noqa
             "tags": ["TemporalProperty"],
             "parameters": [
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"},
-                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tValueId"}
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/collectionId"}, # noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/mFeatureId"}, # noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tPropertyName"}, # noqa
+                {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/parameters/tValueId"} # noqa
             ],
             "responses": {
                 "204": {"description": "Successfully deleted."},
-                "404": {"description": "- A collection with the specified id was not found.\n- Or a moving feature with the specified id was not found.\n- Or a temporal property with the specified id was not found.\n- Or a temporal primitive primitive with the specified id was not found.\n"},
-                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"}
+                "404": {"description":
+                            "- A collection with the specified id was not found.\n" # noqa
+                            "- Or a moving feature with the specified id was not found.\n" # noqa
+                            "- Or a temporal property with the specified id was not found.\n" # noqa
+                            "- Or a temporal primitive with the specified id was not found."}, # noqa
+                "500": {"$ref": f"{OPENAPI_YAML['movingfeature']}#/components/responses/ServerError"} # noqa
             }
         }
     }

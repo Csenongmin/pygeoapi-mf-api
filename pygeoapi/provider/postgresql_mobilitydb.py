@@ -1102,11 +1102,11 @@ class PostgresMobilityDB:
         :param tgeometry_id: local identifier of a geometry
         :param datetime: either a date-time or an interval(datestamp or extent)
         :param leaf: array of strings <date-time> (default None)
-                     only features that have a temporal geometry and property
-                     that intersects the given date-time are selected [optional]
-        :param sub_temporal_value: boolean, only features with a temporal property
-                                 intersecting the given time interval
-                                 will return (default False) [optional]
+                only features that have a temporal geometry and property
+                that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal
+                property intersecting the given time interval will return
+                (default False) [optional]
 
         :returns: TemporalProperty of velocity
         """
@@ -1115,7 +1115,8 @@ class PostgresMobilityDB:
         with self.connection.cursor() as cur:
             if (leaf == '' or leaf is None) and \
                     (not sub_temporal_value or sub_temporal_value == "false"):
-                # no optional query parameters are used -> time-to-velocity curve returns
+                # no optional query parameters are used
+                # -> time-to-velocity curve returns
                 select_query = \
                     f"""SELECT speed(tgeog_property) AS speed
                         FROM tgeometry
@@ -1127,7 +1128,8 @@ class PostgresMobilityDB:
                 # only leaf query parameter is used
                 leaf_condition = "tstzset('{"+leaf+"}')"
                 select_query = \
-                    f"""SELECT atTime(speed(tgeog_property),{leaf_condition}) AS speed
+                    f"""SELECT atTime(speed(tgeog_property),
+                               {leaf_condition}) AS speed
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1136,7 +1138,8 @@ class PostgresMobilityDB:
                     (sub_temporal_value or sub_temporal_value == "true"):
                 # only sub_temporal_value query parameter is used
                 select_query = \
-                    f"""SELECT atTime(speed(tgeog_property), tstzspan('[{datetime}]')) AS speed
+                    f"""SELECT atTime(speed(tgeog_property), 
+                               tstzspan('[{datetime}]')) AS speed
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1159,11 +1162,11 @@ class PostgresMobilityDB:
         :param tgeometry_id: local identifier of a geometry
         :param datetime: either a date-time or an interval(datestamp or extent)
         :param leaf: array of strings <date-time> (default None)
-                     only features that have a temporal geometry and property
-                     that intersects the given date-time are selected [optional]
-        :param sub_temporal_value: boolean, only features with a temporal property
-                                 intersecting the given time interval
-                                 will return (default False) [optional]
+                only features that have a temporal geometry and property
+                that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal
+                property intersecting the given time interval will return
+                (default False) [optional]
 
         :returns: TemporalProperty of distance
         """
@@ -1173,7 +1176,8 @@ class PostgresMobilityDB:
         with self.connection.cursor() as cur:
             if (leaf == '' or leaf is None) and \
                     (not sub_temporal_value or sub_temporal_value == "false"):
-                # no optional query parameters are used -> time-to-velocity curve returns
+                # no optional query parameters are used
+                # -> time-to-velocity curve returns
                 select_query = \
                     f"""SELECT cumulativeLength(tgeog_property) AS distance
                         FROM tgeometry
@@ -1185,7 +1189,8 @@ class PostgresMobilityDB:
                 # only leaf query parameter is used
                 leaf_condition = "tstzset('{"+leaf+"}')"
                 select_query = \
-                    f"""SELECT atTime(cumulativeLength(tgeog_property),{leaf_condition}) AS distance
+                    f"""SELECT atTime(cumulativeLength(tgeog_property),
+                               {leaf_condition}) AS distance
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1194,7 +1199,8 @@ class PostgresMobilityDB:
                     (sub_temporal_value or sub_temporal_value == "true"):
                 # only sub_temporal_value query parameter is used
                 select_query = \
-                    f"""SELECT atTime(cumulativeLength(tgeog_property), tstzspan('[{datetime}]')) AS distance
+                    f"""SELECT atTime(cumulativeLength(tgeog_property), 
+                               tstzspan('[{datetime}]')) AS distance
                         FROM tgeometry
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
@@ -1215,13 +1221,13 @@ class PostgresMobilityDB:
         :param collection_id: local identifier of a collection
         :param mfeature_id: local identifier of a moving feature
         :param tgeometry_id: local identifier of a geometry
-        :param datetime: either a date-time or an interval(datestamp or extent)
+        :param datetime: either a date-time or an interval
         :param leaf: array of strings <date-time> (default None)
-                     only features that have a temporal geometry and property
-                     that intersects the given date-time are selected [optional]
-        :param sub_temporal_value: boolean, only features with a temporal property
-                                 intersecting the given time interval
-                                 will return (default False) [optional]
+                only features that have a temporal geometry and property
+                that intersects the given date-time are selected [optional]
+        :param sub_temporal_value: boolean, only features with a temporal
+                property intersecting the given time interval will return
+                (default False) [optional]
 
         :returns: TemporalProperty of acceleration
         """
@@ -1248,14 +1254,16 @@ class PostgresMobilityDB:
             interpolation = each_row_converted.interpolation().to_string()
 
             each_time = [
-                each_val.time().start_timestamp().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                each_val.time().start_timestamp().strftime(
+                    '%Y-%m-%dT%H:%M:%S.%fZ')
                 for each_val in each_row_converted.instants()]
             if interpolation == "Step":
                 each_values = [0 for each_val in each_row_converted.instants()]
             else:
-                each_values = [each_val.value() for each_val in each_row_converted.instants()]
+                each_values = [each_val.value() for each_val
+                               in each_row_converted.instants()]
 
-            value_sequence = self.calculate_acceleration(each_values, each_time, datetime)
+            value_sequence = self.cal_accel(each_values, each_time, datetime)
             if value_sequence.get("values"):
                 if datetime is not None:
                     value_sequence["interpolation"] = "Discrete"
@@ -1292,9 +1300,11 @@ class PostgresMobilityDB:
             else:
                 each_row_converted = TFloatSeq(each_row[0])
 
-            each_values = [each_val.value() for each_val in each_row_converted.instants()]
+            each_values = [each_val.value() for each_val in
+                           each_row_converted.instants()]
             each_time = [
-                each_val.time().start_timestamp().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                each_val.time().start_timestamp().strftime(
+                    '%Y-%m-%dT%H:%M:%S.%fZ')
                 for each_val in each_row_converted.instants()]
             interpolation = each_row_converted.interpolation().to_string()
 
@@ -1306,7 +1316,7 @@ class PostgresMobilityDB:
             tProperty["valueSequence"].append(value_sequence)
         return tProperty
 
-    def calculate_acceleration(self, velocities, times, chk_dtime):
+    def cal_accel(self, velocities, times, chk_dtime):
         """
         Calculate acceleration
 

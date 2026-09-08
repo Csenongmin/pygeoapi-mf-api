@@ -243,23 +243,30 @@ def collections(collection_id: str | None = None):
     """
     if collection_id is None:
         if request.method == 'GET':  # list items
-            return execute_from_flask(core_api.describe_collections, request, collection_id)
+            return execute_from_flask(core_api.describe_collections,
+                                      request, collection_id)
         elif request.method == 'POST':  # filter or manage items
-            return execute_from_flask(movingfeatures.manage_collection, request, 'create')
+            return execute_from_flask(movingfeatures.manage_collection,
+                                      request, 'create')
     else:
-        collections_config = filter_dict_by_key_value(api_.config['resources'], 'type', 'collection')
+        collections_config = filter_dict_by_key_value(api_.config['resources'],
+                                                      'type', 'collection')
 
         # collection in config
         if collection_id in collections_config:
-            return execute_from_flask(core_api.describe_collections, request, collection_id)
+            return execute_from_flask(core_api.describe_collections,
+                                      request, collection_id)
         # moving feature collection
         else:
             if request.method == 'DELETE':
-                return execute_from_flask(movingfeatures.manage_collection, request, 'delete', collection_id)
+                return execute_from_flask(movingfeatures.manage_collection,
+                                          request, 'delete', collection_id)
             elif request.method == 'PUT':
-                return execute_from_flask(movingfeatures.manage_collection, request, 'update', collection_id)
+                return execute_from_flask(movingfeatures.manage_collection,
+                                          request, 'update', collection_id)
             else:
-                return execute_from_flask(movingfeatures.get_collection, request, collection_id)
+                return execute_from_flask(movingfeatures.get_collection,
+                                          request, collection_id)
 
 
 @BLUEPRINT.route('/collections/<path:collection_id>/schema')
@@ -290,8 +297,12 @@ def collection_queryables(collection_id: str | None = None):
                               request, collection_id)
 
 
-@BLUEPRINT.route('/collections/<path:collection_id>/items', methods=['GET', 'POST', 'OPTIONS'], provide_automatic_options=False)
-@BLUEPRINT.route('/collections/<path:collection_id>/items/<path:item_id>', methods=['GET', 'PUT', 'DELETE', 'OPTIONS'], provide_automatic_options=False)
+@BLUEPRINT.route('/collections/<path:collection_id>/items',
+                 methods=['GET', 'POST', 'OPTIONS'],
+                 provide_automatic_options=False)
+@BLUEPRINT.route('/collections/<path:collection_id>/items/<path:item_id>',
+                 methods=['GET', 'PUT', 'DELETE', 'OPTIONS'],
+                 provide_automatic_options=False)
 def collection_items(collection_id: str, item_id: str | None = None):
     """
     OGC API collections items endpoint
@@ -300,7 +311,8 @@ def collection_items(collection_id: str, item_id: str | None = None):
     :param item_id: item identifier
 
     """
-    collections_config = filter_dict_by_key_value(api_.config['resources'], 'type', 'collection')
+    collections_config = filter_dict_by_key_value(api_.config['resources'],
+                                                  'type', 'collection')
 
     # collection in config
     if collection_id in collections_config:
@@ -318,8 +330,8 @@ def collection_items(collection_id: str, item_id: str | None = None):
                                 collection_id, skip_valid_check=True)
             elif request.method == 'OPTIONS':
                 return execute_from_flask(
-                        itemtypes_api.manage_collection_item, request, 'options',
-                        collection_id, skip_valid_check=True)
+                    itemtypes_api.manage_collection_item, request, 'options',
+                    collection_id, skip_valid_check=True)
             else:  # GET: list items
                 return execute_from_flask(
                     itemtypes_api.get_collection_items,
@@ -343,24 +355,29 @@ def collection_items(collection_id: str, item_id: str | None = None):
                 skip_valid_check=True)
         else:
             return execute_from_flask(
-                itemtypes_api.get_collection_item, request, collection_id, item_id)
+                itemtypes_api.get_collection_item,
+                request, collection_id, item_id)
 
     # moving feature collection
     else:
         if item_id is None:
             if request.method == 'GET':  # list items
                 return execute_from_flask(
-                    movingfeatures.get_collection_items, request, collection_id)
+                    movingfeatures.get_collection_items,
+                    request, collection_id)
             elif request.method == 'POST':  # filter or manage items
                 return execute_from_flask(
-                    movingfeatures.manage_collection_item, request, 'create', collection_id)
+                    movingfeatures.manage_collection_item,
+                    request, 'create', collection_id)
             else:
                 if request.method == 'DELETE':
                     return execute_from_flask(
-                        movingfeatures.manage_collection_item, request, 'delete', collection_id, item_id)
+                        movingfeatures.manage_collection_item,
+                        request, 'delete', collection_id, item_id)
                 else:
                     return execute_from_flask(
-                        movingfeatures.get_collection_item, request, collection_id, item_id)
+                        movingfeatures.get_collection_item,
+                        request, collection_id, item_id)
 
 
 @BLUEPRINT.route('/collections/<path:collection_id>/coverage')
