@@ -28,7 +28,7 @@ psql --user="$POSTGRES_USER" --dbname="mobilitydb" <<- 'EOSQL'
     FOREIGN KEY (collection_id) REFERENCES collection(collection_id)
     );
     -- Table TemporalGeometry
-    CREATE TABLE public.tgeometry (
+    CREATE TABLE public.tgeometries (
     collection_id uuid NOT NULL,
     mfeature_id uuid NOT NULL,
     tgeometry_id uuid NOT NULL DEFAULT uuid_generate_v4(),

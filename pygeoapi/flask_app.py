@@ -231,8 +231,12 @@ def get_tilematrix_sets():
     return execute_from_flask(tiles_api.tilematrixsets, request)
 
 
-@BLUEPRINT.route('/collections')
-@BLUEPRINT.route('/collections/<path:collection_id>')
+@BLUEPRINT.route('/collections',
+                 methods=['GET', 'POST', 'OPTIONS'],
+                 provide_automatic_options=False)
+@BLUEPRINT.route('/collections/<path:collection_id>',
+                 methods=['GET', 'PUT', 'DELETE', 'OPTIONS'],
+                 provide_automatic_options=False)
 def collections(collection_id: str | None = None):
     """
     OGC API collections endpoint

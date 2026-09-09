@@ -36,30 +36,27 @@
 Returns content from plugins and sets responses.
 """
 
-from datetime import datetime
-from functools import partial
+
 import json
 import logging
 import re
-from typing import Tuple
 import urllib.parse
-
-from dateutil.parser import parse as dateparse
 import pytz
+import psycopg2
+from datetime import datetime
+from functools import partial
+
+from typing import Tuple
+from dateutil.parser import parse as dateparse
 from http import HTTPStatus
-
-from pygeoapi.plugin import PLUGINS
-
 from pymeos import (STBox, TsTzSpan, TTextSeq, TFloatSeq,
                     TGeomPointSeq, Temporal, pymeos_initialize)
-import psycopg2
-from pygeoapi.provider.postgresql_mobilitydb import PostgresMobilityDB
-from . import (API, APIRequest, SYSTEM_LOCALE,
-               FORMAT_TYPES, F_JSON)
+from . import (API, APIRequest, SYSTEM_LOCALE, FORMAT_TYPES, F_JSON)
 from pygeoapi.util import (to_json)
+from pygeoapi.plugin import PLUGINS
+from pygeoapi.provider.postgresql_mobilitydb import PostgresMobilityDB
 
 LOGGER = logging.getLogger(__name__)
-
 
 CONFORMANCE_CLASSES_MOVINGFEATURES = [
     "http://www.opengis.net/spec/ogcapi-movingfeatures-1/1.0/conf/common",

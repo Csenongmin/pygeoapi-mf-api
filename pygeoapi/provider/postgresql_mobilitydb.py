@@ -1,22 +1,22 @@
 import json
 import datetime
 import psycopg2
+import pytz
 from functools import partial
 from dateutil.parser import parse as dateparse
-import pytz
 from pymeos import (Temporal, TFloatSeq, TFloatSeqSet, pymeos_initialize)
 from pygeoapi.util import format_datetime
 from pymeos_cffi import (tfloat_from_mfjson, ttext_from_mfjson,
                          tgeompoint_from_mfjson)
 
-
 class PostgresMobilityDB:
-    host = 'localhost'
-    port = 5432
-    db = 'mobilitydb'
-    user = 'docker'
-    password = 'docker'
-    connection = None
+    DEFAULT_DATASOURCE = {
+        "host": "mobilitydb",
+        "port": 5432,
+        "dbname": "mobilitydb",
+        "user": "docker",
+        "password": "docker",
+    }
 
     def __init__(self, datasource=None):
         """
@@ -30,13 +30,26 @@ class PostgresMobilityDB:
             password - password used to authenticate
         """
 
+        datasource = self._build_datasource(datasource)
+        self.host = datasource['host']
+        self.port = int(datasource['port'])
+        self.database = datasource['dbname']
+        self.user = datasource['user']
+        self.password = datasource['password']
+
         self.connection = None
-        if datasource is not None:
-            self.host = datasource['host']
-            self.port = int(datasource['port'])
-            self.db = datasource['dbname']
-            self.user = datasource['user']
-            self.password = datasource['password']
+
+    def _build_datasource(self, datasource=None):
+        if datasource is None:
+            return self.DEFAULT_DATASOURCE
+
+        return {
+            "host": datasource["host"],
+            "port": datasource["port"],
+            "dbname": datasource["dbname"],
+            "user": datasource["user"],
+            "password": datasource["password"],
+        }
 
     def connect(self):
         """
@@ -44,22 +57,23 @@ class PostgresMobilityDB:
         """
 
         # Set the connection parameters to PostgreSQL
-        self.connection = psycopg2.connect(host=self.host,
-                                           database=self.db,
-                                           user=self.user,
-                                           password=self.password,
-                                           port=self.port)
+        self.connection = psycopg2.connect(
+            host=self.host,
+            database=self.database,
+            user=self.user,
+            password=self.password,
+            port=self.port)
         self.connection.autocommit = True
-        # Register MobilityDB data types (old library 'python-mobilitydb')
-        # register(self.connection)
+
 
     def disconnect(self):
         """
         Close the connection
         """
-
         if self.connection:
             self.connection.close()
+            self.connection = None
+
 
     def get_collections_list(self):
         """
@@ -86,13 +100,13 @@ class PostgresMobilityDB:
             extentTGeometry from (select collection.collection_id,
             collection.collection_property,
             extent(mfeature.lifespan) as extentLifespan,
-            extent(tgeometry.tgeometry_property) as extentTGeometry
+            extent(tgeometries.tgeometry_property) as extentTGeometry
             from collection
             left outer join mfeature
             on collection.collection_id = mfeature.collection_id
-            left outer join tgeometry
-            on mfeature.collection_id = tgeometry.collection_id
-            and mfeature.mfeature_id = tgeometry.mfeature_id
+            left outer join tgeometries
+            on mfeature.collection_id = tgeometries.collection_id
+            and mfeature.mfeature_id = tgeometries.mfeature_id
             group by collection.collection_id, collection.collection_property)
             collection """
 
@@ -115,13 +129,13 @@ class PostgresMobilityDB:
                 extentTGeometry from (select collection.collection_id,
                 collection.collection_property,
                 extent(mfeature.lifespan) as extentLifespan,
-                extent(tgeometry.tgeometry_property) as extentTGeometry
+                extent(tgeometries.tgeometry_property) as extentTGeometry
                 from collection
                 left outer join mfeature
                 on collection.collection_id = mfeature.collection_id
-                left outer join tgeometry
-                on mfeature.collection_id = tgeometry.collection_id
-                and mfeature.mfeature_id = tgeometry.mfeature_id
+                left outer join tgeometries
+                on mfeature.collection_id = tgeometries.collection_id
+                and mfeature.mfeature_id = tgeometries.mfeature_id
                 where collection.collection_id ='{0}'
                 group by collection.collection_id,
                 collection.collection_property)
@@ -200,10 +214,10 @@ class PostgresMobilityDB:
                 extentTPropertiesValueFloat, extentTPropertiesValueText
                 from (select mfeature.collection_id, mfeature.mfeature_id,
                 mfeature.mf_geometry, mfeature.mf_property, mfeature.lifespan,
-                extent(tgeometry.tgeometry_property) as extentTGeometry
-                from mfeature left outer join tgeometry
-                on mfeature.collection_id = tgeometry.collection_id
-                and mfeature.mfeature_id = tgeometry.mfeature_id
+                extent(tgeometries.tgeometry_property) as extentTGeometry
+                from mfeature left outer join tgeometries
+                on mfeature.collection_id = tgeometries.collection_id
+                and mfeature.mfeature_id = tgeometries.mfeature_id
                 where mfeature.collection_id ='{0}'
                 group by mfeature.collection_id, mfeature.mfeature_id,
                 mfeature.mf_geometry, mfeature.mf_property, mfeature.lifespan)
@@ -233,7 +247,7 @@ class PostgresMobilityDB:
             number_returned = len(result)
 
             if sub_trajectory or sub_trajectory == "true":
-                sub_trajectory_field = ("""atTime(tgeometry.tgeometry_property,
+                sub_trajectory_field = ("""atTime(tgeometries.tgeometry_property,
                                     tstzspan('[{0}]'))"""
                                         .format(datetime))
                 # sub_trajectory is true
@@ -241,27 +255,27 @@ class PostgresMobilityDB:
                     """select mfeature.collection_id,
                 mfeature.mfeature_id, mfeature.mf_geometry,
                 mfeature.mf_property, mfeature.lifespan,
-                extentTGeometry, tgeometry.tgeometry_id,
+                extentTGeometry, tgeometries.tgeometry_id,
                 tgeometry_property from (select mfeature.collection_id,
                 mfeature.mfeature_id, st_asgeojson(mfeature.mf_geometry)
                 as mf_geometry, mfeature.mf_property, mfeature.lifespan,
                 extentTGeometry from (select mfeature.collection_id,
                 mfeature.mfeature_id, mfeature.mf_geometry,
                 mfeature.mf_property, mfeature.lifespan,
-                extent(tgeometry.tgeometry_property)
-                as extentTGeometry from mfeature left outer join tgeometry
-                on mfeature.collection_id = tgeometry.collection_id
-                and mfeature.mfeature_id = tgeometry.mfeature_id
+                extent(tgeometries.tgeometry_property)
+                as extentTGeometry from mfeature left outer join tgeometries
+                on mfeature.collection_id = tgeometries.collection_id
+                and mfeature.mfeature_id = tgeometries.mfeature_id
                 where mfeature.collection_id ='{0}'
                 group by mfeature.collection_id, mfeature.mfeature_id,
                 mfeature.mf_geometry, mfeature.mf_property, mfeature.lifespan)
                 mfeature where 1=1 {1} {2}) mfeature
-                left outer join (select tgeometry.collection_id,
-                tgeometry.mfeature_id, tgeometry.tgeometry_id, {3}
-                as tgeometry_property from tgeometry
-                where tgeometry.collection_id ='{0}' and {3} is not null)
-                tgeometry ON mfeature.collection_id = tgeometry.collection_id
-                and mfeature.mfeature_id = tgeometry.mfeature_id where 1=1 """.
+                left outer join (select tgeometries.collection_id,
+                tgeometries.mfeature_id, tgeometries.tgeometry_id, {3}
+                as tgeometry_property from tgeometries
+                where tgeometries.collection_id ='{0}' and {3} is not null)
+                tgeometries ON mfeature.collection_id = tgeometries.collection_id
+                and mfeature.mfeature_id = tgeometries.mfeature_id where 1=1 """.
                     format(
                         collection_id, bbox_restriction,
                         limit_restriction,
@@ -289,10 +303,10 @@ class PostgresMobilityDB:
                 mfeature.mf_property, mfeature.lifespan, extentTGeometry
                 from (select mfeature.collection_id, mfeature.mfeature_id,
                 mfeature.mf_geometry, mfeature.mf_property, mfeature.lifespan,
-                extent(tgeometry.tgeometry_property) as extentTGeometry
-                from mfeature left outer join tgeometry
-                on mfeature.collection_id = tgeometry.collection_id
-                and mfeature.mfeature_id = tgeometry.mfeature_id
+                extent(tgeometries.tgeometry_property) as extentTGeometry
+                from mfeature left outer join tgeometries
+                on mfeature.collection_id = tgeometries.collection_id
+                and mfeature.mfeature_id = tgeometries.mfeature_id
                 where mfeature.collection_id ='{0}'
                 AND mfeature.mfeature_id='{1}'
                 group by mfeature.collection_id, mfeature.mfeature_id,
@@ -354,7 +368,7 @@ class PostgresMobilityDB:
             select_query = (
                 """SELECT collection_id, mfeature_id, tgeometry_id,
                     tgeometry_property, {0}
-                    FROM tgeometry WHERE collection_id ='{1}'
+                    FROM tgeometries WHERE collection_id ='{1}'
                     AND mfeature_id='{2}' {3} {4}"""
                 .format(tgeometry_property, collection_id,
                         mfeature_id, bbox_restriction,
@@ -647,7 +661,7 @@ class PostgresMobilityDB:
             value = Temporal._factory(
                 tgeompoint_from_mfjson(json.dumps(temporal_geometry)))
             cur.execute(
-                """INSERT INTO tgeometry(collection_id, mfeature_id,
+                """INSERT INTO tgeometries(collection_id, mfeature_id,
                 tgeometry_property, tgeog_property)
                 VALUES ('{0}', '{1}', '{2}', '{3}') RETURNING tgeometry_id"""
                 .format(collection_id, mfeature_id, str(value), str(value)))
@@ -795,7 +809,7 @@ class PostgresMobilityDB:
             cur.execute(
                 "DELETE FROM tproperties WHERE 1=1 {0}".format(restriction))
             cur.execute(
-                "DELETE FROM tgeometry WHERE 1=1 {0}".format(restriction))
+                "DELETE FROM tgeometries WHERE 1=1 {0}".format(restriction))
             cur.execute(
                 "DELETE FROM mfeature WHERE 1=1 {0}".format(restriction))
             cur.execute(
@@ -813,7 +827,7 @@ class PostgresMobilityDB:
             cur.execute(
                 "DELETE FROM tproperties WHERE 1=1 {0}".format(restriction))
             cur.execute(
-                "DELETE FROM tgeometry WHERE 1=1 {0}".format(restriction))
+                "DELETE FROM tgeometries WHERE 1=1 {0}".format(restriction))
             cur.execute(
                 "DELETE FROM mfeature WHERE 1=1 {0}".format(restriction))
 
@@ -825,7 +839,7 @@ class PostgresMobilityDB:
         """
         with self.connection.cursor() as cur:
             cur.execute(
-                "DELETE FROM tgeometry WHERE 1=1 {0}".format(restriction))
+                "DELETE FROM tgeometries WHERE 1=1 {0}".format(restriction))
 
     def delete_temporalproperties(self, restriction):
         """
@@ -1119,7 +1133,7 @@ class PostgresMobilityDB:
                 # -> time-to-velocity curve returns
                 select_query = \
                     f"""SELECT speed(tgeog_property) AS speed
-                        FROM tgeometry
+                        FROM tgeometries
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
@@ -1130,7 +1144,7 @@ class PostgresMobilityDB:
                 select_query = \
                     f"""SELECT atTime(speed(tgeog_property),
                                {leaf_condition}) AS speed
-                        FROM tgeometry
+                        FROM tgeometries
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
@@ -1140,7 +1154,7 @@ class PostgresMobilityDB:
                 select_query = \
                     f"""SELECT atTime(speed(tgeog_property),
                                tstzspan('[{datetime}]')) AS speed
-                        FROM tgeometry
+                        FROM tgeometries
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
@@ -1180,7 +1194,7 @@ class PostgresMobilityDB:
                 # -> time-to-velocity curve returns
                 select_query = \
                     f"""SELECT cumulativeLength(tgeog_property) AS distance
-                        FROM tgeometry
+                        FROM tgeometries
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
@@ -1191,7 +1205,7 @@ class PostgresMobilityDB:
                 select_query = \
                     f"""SELECT atTime(cumulativeLength(tgeog_property),
                                {leaf_condition}) AS distance
-                        FROM tgeometry
+                        FROM tgeometries
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
@@ -1201,7 +1215,7 @@ class PostgresMobilityDB:
                 select_query = \
                     f"""SELECT atTime(cumulativeLength(tgeog_property),
                                tstzspan('[{datetime}]')) AS distance
-                        FROM tgeometry
+                        FROM tgeometries
                         WHERE collection_id = '{collection_id}'
                         and mfeature_id = '{mfeature_id}'
                         and tgeometry_id = '{tgeometry_id}'"""
@@ -1241,7 +1255,7 @@ class PostgresMobilityDB:
         with self.connection.cursor() as cur:
             select_query = \
                 f"""SELECT speed(tgeog_property) AS speed
-                    FROM tgeometry
+                    FROM tgeometries
                     WHERE collection_id = '{collection_id}'
                     and mfeature_id = '{mfeature_id}'
                     and tgeometry_id = '{tgeometry_id}'"""
