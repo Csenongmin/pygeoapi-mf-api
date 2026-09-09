@@ -9,6 +9,7 @@ from pygeoapi.util import format_datetime
 from pymeos_cffi import (tfloat_from_mfjson, ttext_from_mfjson,
                          tgeompoint_from_mfjson)
 
+
 class PostgresMobilityDB:
     DEFAULT_DATASOURCE = {
         "host": "mobilitydb",
@@ -65,7 +66,6 @@ class PostgresMobilityDB:
             port=self.port)
         self.connection.autocommit = True
 
-
     def disconnect(self):
         """
         Close the connection
@@ -73,7 +73,6 @@ class PostgresMobilityDB:
         if self.connection:
             self.connection.close()
             self.connection = None
-
 
     def get_collections_list(self):
         """
@@ -247,9 +246,10 @@ class PostgresMobilityDB:
             number_returned = len(result)
 
             if sub_trajectory or sub_trajectory == "true":
-                sub_trajectory_field = ("""atTime(tgeometries.tgeometry_property,
-                                    tstzspan('[{0}]'))"""
-                                        .format(datetime))
+                sub_trajectory_field = ("""atTime(tgeometries.
+                                        tgeometry_property,
+                                        tstzspan('[{0}]'))""".
+                                        format(datetime))
                 # sub_trajectory is true
                 select_geometry_query = (
                     """select mfeature.collection_id,
@@ -274,8 +274,8 @@ class PostgresMobilityDB:
                 tgeometries.mfeature_id, tgeometries.tgeometry_id, {3}
                 as tgeometry_property from tgeometries
                 where tgeometries.collection_id ='{0}' and {3} is not null)
-                tgeometries ON mfeature.collection_id = tgeometries.collection_id
-                and mfeature.mfeature_id = tgeometries.mfeature_id where 1=1 """.
+                tgeometries ON mfeature.collection_id=tgeometries.collection_id
+                and mfeature.mfeature_id=tgeometries.mfeature_id where 1=1 """.
                     format(
                         collection_id, bbox_restriction,
                         limit_restriction,
